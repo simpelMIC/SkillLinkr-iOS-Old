@@ -4,6 +4,10 @@
 //
 //  Created by Christian on 13.07.24.
 //
+// API: https://skilllinkr.micstudios.de/api/
+// Public:
+// - /register
+// - /login
 
 import SwiftUI
 
