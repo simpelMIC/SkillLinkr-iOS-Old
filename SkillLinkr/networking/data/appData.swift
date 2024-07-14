@@ -11,6 +11,7 @@ import SwiftUI
 struct AppSettings: Codable, Equatable {
     var apiURL: String
     var userToken: String?
+    var user: User?
 }
 
 class AppDataModule {

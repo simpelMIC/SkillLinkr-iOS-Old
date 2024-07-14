@@ -31,7 +31,7 @@ struct UserResponse: Codable {
     var user: User
 }
 
-struct User: Codable {
+struct User: Codable, Equatable {
     var id: Int
     var firstname: String
     var lastname: String

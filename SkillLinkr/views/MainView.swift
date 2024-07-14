@@ -21,12 +21,24 @@ struct ContentView: View {
     @State var httpModule: HTTPModule
     @Binding var settings: AppSettings
     var body: some View {
-        if settings.userToken == nil {
+        if $settings.userToken.wrappedValue == nil || $settings.userToken.wrappedValue == "" {
             OnboardingView(httpModule: $httpModule, settings: $settings)
         } else {
-            Text("Logged in")
-            Button("Log out") {
-                settings.userToken = nil
+            TabView {
+                NavigationStack {
+                    ProfileView(httpModule: $httpModule, settings: $settings)
+                }
+                .tabItem {
+                    Image(systemName: "person")
+                    Text("My Profile")
+                }
+                NavigationStack {
+                    SettingsView(httpModule: $httpModule, settings: $settings)
+                }
+                .tabItem {
+                    Image(systemName: "gear")
+                    Text("Settings")
+                }
             }
         }
     }

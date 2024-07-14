@@ -139,12 +139,18 @@ class HTTPModule: ObservableObject {
         task.resume()
     }
 
-    func getUser(token: String, completion: @escaping (Result<UserResponse, Error>) -> Void) {
+    func getUser(completion: @escaping (Result<UserResponse, Error>) -> Void) {
+        guard let token = settings.userToken else {
+            let error = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Missing token"])
+            completion(.failure(error))
+            return
+        }
+
         let url = URL(string: "\(settings.apiURL)/user")!
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        request.setValue("JWT \(token)", forHTTPHeaderField: "Authorization")
 
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
             if let error = error {
@@ -174,7 +180,8 @@ class HTTPModule: ObservableObject {
                     completion(.failure(decodeError))
                 }
             } else {
-                let error = NSError(domain: "", code: httpResponse.statusCode, userInfo: [NSLocalizedDescriptionKey: "Unexpected response status code"])
+                let responseString = String(data: data, encoding: .utf8) ?? "Unable to parse response"
+                let error = NSError(domain: "", code: httpResponse.statusCode, userInfo: [NSLocalizedDescriptionKey: "Unexpected response status code: \(httpResponse.statusCode). Response: \(responseString)"])
                 completion(.failure(error))
             }
         }
@@ -182,12 +189,13 @@ class HTTPModule: ObservableObject {
         task.resume()
     }
 
+
     func patchUser(token: String, patchUserId: Int, mail: String? = nil, firstname: String? = nil, lastname: String? = nil, password: String? = nil, roleId: Int? = nil, released: Bool? = nil, completion: @escaping (Result<PatchUserResponse, Error>) -> Void) {
         let url = URL(string: "\(settings.apiURL)/user")!
         var request = URLRequest(url: url)
         request.httpMethod = "PATCH"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        request.setValue("JWT \(token)", forHTTPHeaderField: "Authorization")
 
         var parameters: [String: Any] = [
             "patchUserId": patchUserId
