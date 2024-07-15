@@ -18,7 +18,22 @@ struct ProfileView: View {
         } else {
             ScrollView {
                 VStack {
-                    AsyncImage(url: URL(string: ""))
+                    AsyncImage(url: URL(string: "https://flakecraft.net/images/freakcraft-icon.jpeg")!, content: {_ in
+                        AsyncImage(url: URL(string: "https://flakecraft.net/images/freakcraft-icon.jpeg")!)
+                            .aspectRatio(contentMode: .fill)
+                            .frame(maxWidth: .infinity, maxHeight: 350)
+                            .clipped()
+                    }, placeholder: {
+                        Image("userIcon")
+                            .renderingMode(.original)
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(maxWidth: .infinity, maxHeight: 350)
+                            .clipped()
+                    })
+                    .aspectRatio(contentMode: .fill)
+                    .frame(maxWidth: .infinity, maxHeight: 350)
+                    .clipped()
                     Text($settings.user.wrappedValue?.firstname ?? "Fetching user data...")
                         .font(.title)
                 }
@@ -126,6 +141,6 @@ struct PatchUserView: View {
 
 #Preview {
     NavigationStack {
-        ProfileView(httpModule: .constant(HTTPModule(settings: .constant(AppSettings(apiURL: "https://skilllinkr.micstudios.de/api", userToken: "")), appDataModule: AppDataModule(settings: .constant(AppSettings(apiURL: "https://skilllinkr.micstudios.de/api"))))), settings: .constant(AppSettings(apiURL: "https://skilllinkr.micstudios.de/api")))
+        ProfileView(httpModule: .constant(HTTPModule(settings: .constant(AppSettings(apiURL: "https://skilllinkr.micstudios.de/api", userToken: "")), appDataModule: AppDataModule(settings: .constant(AppSettings(apiURL: "https://skilllinkr.micstudios.de/api", user: User(id: "", firstname: "", lastname: "", mail: "", released: false, role: UserRole(id: 0, name: "", description: "", createdAt: "", updatedAt: ""), updatedAt: "", createdAt: "")))))), settings: .constant(AppSettings(apiURL: "https://skilllinkr.micstudios.de/api", user: User(id: "", firstname: "", lastname: "", mail: "", released: false, role: UserRole(id: 0, name: "", description: "", createdAt: "", updatedAt: ""), updatedAt: "", createdAt: ""))))
     }
 }

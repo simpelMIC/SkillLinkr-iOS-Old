@@ -50,6 +50,13 @@ struct AppView: View {
         if settings.user?.released ?? false == true {
             TabView {
                 NavigationStack {
+                    FeedView(httpModule: $httpModule, settings: $settings)
+                }
+                .tabItem {
+                    Image(systemName: "square.stack.fill")
+                    Text("Feed")
+                }
+                NavigationStack {
                     ProfileView(httpModule: $httpModule, settings: $settings)
                 }
                 .tabItem {

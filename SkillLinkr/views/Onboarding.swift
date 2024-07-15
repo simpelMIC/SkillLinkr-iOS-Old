@@ -14,16 +14,21 @@ struct OnboardingView: View {
     @Binding var settings: AppSettings
     var body: some View {
         NavigationStack {
-            VStack {
-                Text("Welcome to Skilllinkr")
-                    .font(.title)
-                HStack {
-                    NavigationLink("Login") {
-                        LoginView(httpModule: $httpModule, settings: $settings)
-                    }
-                    .buttonStyle(.borderedProminent)
-                    NavigationLink("Or create a new account") {
-                        RegisterView(httpModule: $httpModule, settings: $settings)
+            ZStack {
+                Image("Icon")
+                Rectangle()
+                    .fill(.ultraThinMaterial)
+                VStack {
+                    Text("Welcome to Skilllinkr")
+                        .font(.title)
+                    HStack {
+                        NavigationLink("Login") {
+                            LoginView(httpModule: $httpModule, settings: $settings)
+                        }
+                        .buttonStyle(.borderedProminent)
+                        NavigationLink("Or create a new account") {
+                            RegisterView(httpModule: $httpModule, settings: $settings)
+                        }
                     }
                 }
             }
@@ -40,7 +45,7 @@ struct LoginView: View {
     
     @State var error: String?
     var body: some View {
-        List {
+        Form {
             EmailInputView(placeHolder: "Email", txt: $mail)
             SecureField("Password", text: $password)
             if error != nil {
@@ -54,7 +59,6 @@ struct LoginView: View {
     }
     
     func login() {
-        // Example usage for login:
         httpModule.login(mail: $mail.wrappedValue, password: $password.wrappedValue) { result in
             switch result {
             case .success(let loginResponse):
@@ -76,7 +80,7 @@ struct RegisterView: View {
     @State var passwordConfirm: String = ""
     @State var error: String = ""
     var body: some View {
-        List {
+        Form {
             TextField("Firstname", text: $localUser.firstname)
             TextField("Lastname", text: $localUser.lastname)
             EmailInputView(placeHolder: "Email", txt: $localUser.mail)
@@ -122,4 +126,8 @@ struct EmailInputView: View {
                 }
         }
     }
+}
+
+#Preview {
+    OnboardingView(httpModule: .constant(HTTPModule(settings: .constant(AppSettings(apiURL: "https://skilllinkr.micstudios.de/api", userToken: "")), appDataModule: AppDataModule(settings: .constant(AppSettings(apiURL: "https://skilllinkr.micstudios.de/api", user: User(id: "", firstname: "", lastname: "", mail: "", released: false, role: UserRole(id: 0, name: "", description: "", createdAt: "", updatedAt: ""), updatedAt: "", createdAt: "")))))), settings: .constant(AppSettings(apiURL: "https://skilllinkr.micstudios.de/api", user: User(id: "", firstname: "", lastname: "", mail: "", released: false, role: UserRole(id: 0, name: "", description: "", createdAt: "", updatedAt: ""), updatedAt: "", createdAt: ""))))
 }
