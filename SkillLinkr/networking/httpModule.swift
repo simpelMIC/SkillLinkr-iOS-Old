@@ -192,18 +192,18 @@ class HTTPModule: ObservableObject {
         
         task.resume()
     }
-
-    func patchUser(token: String, patchUserId: Int, mail: String? = nil, firstname: String? = nil, lastname: String? = nil, password: String? = nil, roleId: Int? = nil, released: Bool? = nil, completion: @escaping (Result<PatchUserResponse, Error>) -> Void) {
+    
+    func patchUser(token: String, patchUserId: String, mail: String? = nil, firstname: String? = nil, lastname: String? = nil, password: String? = nil, roleId: Int? = nil, released: Bool? = nil, completion: @escaping (Result<PatchUserResponse, Error>) -> Void) {
         let url = URL(string: "\(settings.apiURL)/user")!
         var request = URLRequest(url: url)
         request.httpMethod = "PATCH"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue("JWT \(token)", forHTTPHeaderField: "Authorization")
-
+        
         var parameters: [String: Any] = [
             "patchUserId": patchUserId
         ]
-
+        
         if let mail = mail {
             parameters["mail"] = mail
         }
@@ -222,32 +222,34 @@ class HTTPModule: ObservableObject {
         if let released = released {
             parameters["released"] = released
         }
-
+        
         do {
             request.httpBody = try JSONSerialization.data(withJSONObject: parameters, options: .prettyPrinted)
         } catch let error {
             completion(.failure(error))
             return
         }
-
+        
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
             if let error = error {
                 completion(.failure(error))
                 return
             }
-
+            
             guard let data = data, let httpResponse = response as? HTTPURLResponse else {
                 let error = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Invalid response"])
                 completion(.failure(error))
                 return
             }
-
+            
             if httpResponse.statusCode == 200 {
                 do {
                     let patchUserResponse = try JSONDecoder().decode(PatchUserResponse.self, from: data)
                     completion(.success(patchUserResponse))
                 } catch let decodeError {
-                    completion(.failure(decodeError))
+                    let responseString = String(data: data, encoding: .utf8) ?? "Unable to parse response"
+                    let error = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Failed to decode response: \(decodeError). Response: \(responseString)"])
+                    completion(.failure(error))
                 }
             } else if httpResponse.statusCode == 400 {
                 do {
@@ -255,14 +257,17 @@ class HTTPModule: ObservableObject {
                     let error = NSError(domain: "", code: 400, userInfo: [NSLocalizedDescriptionKey: errorResponse.message])
                     completion(.failure(error))
                 } catch let decodeError {
-                    completion(.failure(decodeError))
+                    let responseString = String(data: data, encoding: .utf8) ?? "Unable to parse response"
+                    let error = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Failed to decode error response: \(decodeError). Response: \(responseString)"])
+                    completion(.failure(error))
                 }
             } else {
-                let error = NSError(domain: "", code: httpResponse.statusCode, userInfo: [NSLocalizedDescriptionKey: "Unexpected response status code"])
+                let responseString = String(data: data, encoding: .utf8) ?? "Unable to parse response"
+                let error = NSError(domain: "", code: httpResponse.statusCode, userInfo: [NSLocalizedDescriptionKey: "Unexpected response status code: \(httpResponse.statusCode). Response: \(responseString)"])
                 completion(.failure(error))
             }
         }
-
+        
         task.resume()
     }
 }
