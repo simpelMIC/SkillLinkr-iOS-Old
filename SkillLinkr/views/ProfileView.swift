@@ -13,30 +13,34 @@ struct ProfileView: View {
     @Binding var settings: AppSettings
     @State var isSheetPresented: Bool = false
     var body: some View {
-        ScrollView {
-            VStack {
-                AsyncImage(url: URL(string: ""))
-                Text($settings.user.wrappedValue?.firstname ?? "Fetching user data...")
-                    .font(.title)
+        if $settings.user.wrappedValue == nil {
+            Text("Fetching user data...")
+        } else {
+            ScrollView {
+                VStack {
+                    AsyncImage(url: URL(string: ""))
+                    Text($settings.user.wrappedValue?.firstname ?? "Fetching user data...")
+                        .font(.title)
+                }
             }
-        }
-        .navigationTitle("My Profile")
-        .toolbar {
-            Button {
-                isSheetPresented.toggle()
-            } label: {
-                Image(systemName: "pencil")
+            .navigationTitle("My Profile")
+            .toolbar {
+                Button {
+                    isSheetPresented.toggle()
+                } label: {
+                    Image(systemName: "pencil")
+                }
             }
-        }
-        .task {
-            getUser()
-        }
-        .sheet(isPresented: $isSheetPresented, content: {
-            PatchUserView(httpModule: $httpModule, settings: $settings) {
-                isSheetPresented.toggle()
+            .task {
                 getUser()
             }
-        })
+            .sheet(isPresented: $isSheetPresented, content: {
+                PatchUserView(httpModule: $httpModule, settings: $settings) {
+                    isSheetPresented.toggle()
+                    getUser()
+                }
+            })
+        }
     }
     
     func getUser() {

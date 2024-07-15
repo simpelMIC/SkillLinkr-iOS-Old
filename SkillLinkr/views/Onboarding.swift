@@ -107,6 +107,8 @@ struct EmailInputView: View {
         TextField(placeHolder, text: $txt)
             .keyboardType(.emailAddress)
             .textContentType(.emailAddress)
+            .textInputAutocapitalization(.never)
+            .autocorrectionDisabled(true)
             .onReceive(Just(txt)) { newValue in
                 let validString = newValue.filter { "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ._-+$!~&=#[]@".contains($0) }
                 if validString != newValue {
