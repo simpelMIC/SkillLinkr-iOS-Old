@@ -58,3 +58,50 @@ struct ErrorResponse: Codable {
     var status: String
     var message: String
 }
+
+struct GetSocialmediaResponse: Codable {
+    var status: String
+    var message: Socialmedia
+}
+
+struct PatchSocialmediaResponse: Codable {
+    var status: String
+    var message: String
+}
+
+struct Socialmedia: Codable, Equatable {
+    var id: Int
+    var userId: String
+    var discordName: String?
+    var facebookName: String?
+    var instagramName: String?
+    var xName: String?
+    var updatedAt: String
+    var createdAt: String
+}
+
+struct Teachinginformation: Codable, Equatable {
+    var id: Int
+    var userId: String
+    var teachesInPerson: Bool
+    var teachesOnline: Bool
+    var teachingCity: String?
+    var teachingCountry: String?
+    var updatedAt: String
+    var createdAt: String
+}
+
+struct GetTeachinginformationResponse: Codable {
+    var status: String
+    var message: Teachinginformation
+}
+
+struct PatchResponse: Codable {
+    var status: String
+    var message: String
+}
+
+struct GetUserReleaseResponse: Codable {
+    var status: String
+    var message: String
+}

@@ -24,6 +24,30 @@ struct ContentView: View {
         if $settings.userToken.wrappedValue == nil || $settings.userToken.wrappedValue == "" {
             OnboardingView(httpModule: $httpModule, settings: $settings)
         } else {
+            AppView(httpModule: $httpModule, settings: $settings)
+                .onAppear {
+                    httpModule.getUserRelease { result in
+                        switch result {
+                        case .success(let userReleaseResponse):
+                            if userReleaseResponse.status == "success" {
+                                settings.user = User(id: "", firstname: "", lastname: "", mail: "", released: true, role: UserRole(id: 0, name: "", description: "", createdAt: "", updatedAt: ""), updatedAt: "", createdAt: "")
+                            } else {
+                                settings.user = User(id: "", firstname: "", lastname: "", mail: "", released: false, role: UserRole(id: 0, name: "", description: "", createdAt: "", updatedAt: ""), updatedAt: "", createdAt: "")
+                            }
+                        case .failure(let error):
+                            print("Failed to validate account access: \(error.localizedDescription)")
+                        }
+                    }
+                }
+        }
+    }
+}
+
+struct AppView: View {
+    @Binding var httpModule: HTTPModule
+    @Binding var settings: AppSettings
+    var body: some View {
+        if settings.user?.released ?? false == true {
             TabView {
                 NavigationStack {
                     ProfileView(httpModule: $httpModule, settings: $settings)
@@ -40,17 +64,31 @@ struct ContentView: View {
                     Text("Settings")
                 }
             }
-        }
-    }
-    
-    func register() {
-        // Example usage for register:
-        httpModule.register(mail: "example1@mail.com", firstname: "John", lastname: "Doe", password: "password123", passwordConfirm: "password123") { result in
-            switch result {
-            case .success(let registerResponse):
-                print("Registration successful! Token: \(registerResponse.message.token)")
-            case .failure(let error):
-                print("Registration failed: \(error.localizedDescription)")
+        } else {
+            VStack {
+            Text("This account is not released")
+                .font(.title)
+                HStack {
+                    Button("Log Out", role: .destructive) {
+                        settings.userToken = nil
+                        AppDataModule(settings: $settings).save()
+                    }
+                    .buttonStyle(.borderedProminent)
+                    Button("Retry") {
+                        httpModule.getUserRelease { result in
+                            switch result {
+                            case .success(let userReleaseResponse):
+                                if userReleaseResponse.status == "success" {
+                                    settings.user = User(id: "", firstname: "", lastname: "", mail: "", released: true, role: UserRole(id: 0, name: "", description: "", createdAt: "", updatedAt: ""), updatedAt: "", createdAt: "")
+                                } else {
+                                    settings.user = User(id: "", firstname: "", lastname: "", mail: "", released: false, role: UserRole(id: 0, name: "", description: "", createdAt: "", updatedAt: ""), updatedAt: "", createdAt: "")
+                                }
+                            case .failure(let error):
+                                print("Failed to validate account access: \(error.localizedDescription)")
+                            }
+                        }
+                    }
+                }
             }
         }
     }

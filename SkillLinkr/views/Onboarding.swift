@@ -37,10 +37,15 @@ struct LoginView: View {
     
     @State var mail: String = ""
     @State var password: String = ""
+    
+    @State var error: String?
     var body: some View {
         List {
             EmailInputView(placeHolder: "Email", txt: $mail)
             SecureField("Password", text: $password)
+            if error != nil {
+                Text(error ?? "")
+            }
             Button("Login") {
                 login()
             }
@@ -55,6 +60,7 @@ struct LoginView: View {
             case .success(let loginResponse):
                 print("Login successful! Token: \(loginResponse.message.token)")
             case .failure(let error):
+                self.error = error.localizedDescription
                 print("Login failed: \(error.localizedDescription)")
             }
         }
