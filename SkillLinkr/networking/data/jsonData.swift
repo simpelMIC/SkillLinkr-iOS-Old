@@ -25,19 +25,28 @@ struct RegisterResponse: Codable {
     }
 }
 
-struct UserResponse: Codable {
+struct UserResponse: Codable, Equatable {
     var status: String
     var message: User
-    var user: User
 }
 
 struct User: Codable, Equatable {
-    var id: Int
+    var id: String
     var firstname: String
     var lastname: String
     var mail: String
     var released: Bool
-    var role: String
+    var role: UserRole
+    var updatedAt: String
+    var createdAt: String
+}
+
+struct UserRole: Codable, Equatable {
+    var id: Int
+    var name: String
+    var description: String
+    var createdAt: String
+    var updatedAt: String
 }
 
 struct PatchUserResponse: Codable {

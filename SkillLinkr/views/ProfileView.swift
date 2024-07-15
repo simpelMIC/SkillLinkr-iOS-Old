@@ -12,20 +12,20 @@ struct ProfileView: View {
     @Binding var httpModule: HTTPModule
     @Binding var settings: AppSettings
     var body: some View {
-        VStack {
-            Text(settings.userToken ?? "No Token")
+        ScrollView {
+            VStack {
+                AsyncImage(url: URL(string: ""))
+                Text($settings.user.wrappedValue?.firstname ?? "Fetching user data...")
+                    .font(.title)
+            }
         }
-        .navigationTitle(settings.user?.firstname ?? "Johannes")
+        .navigationTitle("My Profile")
         .onAppear {
             httpModule.getUser { result in
                 switch result {
                 case .success(let userResponse):
                     print("User details fetched successfully!")
-                    settings.user?.firstname = userResponse.message.firstname
-                    settings.user?.lastname = userResponse.message.lastname
-                    settings.user?.mail = userResponse.message.mail
-                    settings.user?.released = userResponse.message.released
-                    settings.user?.role = userResponse.message.role
+                    settings.user = User(id: userResponse.message.id, firstname: userResponse.message.firstname, lastname: userResponse.message.lastname, mail: userResponse.message.mail, released: userResponse.message.released, role: userResponse.message.role, updatedAt: userResponse.message.updatedAt, createdAt: userResponse.message.createdAt)
                 case .failure(let error):
                     print("Failed to fetch user details: \(error.localizedDescription)")
                 }

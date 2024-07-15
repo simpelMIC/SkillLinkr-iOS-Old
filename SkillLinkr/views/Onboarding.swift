@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Combine
 import SwiftUI
 
 struct OnboardingView: View {
@@ -38,8 +39,8 @@ struct LoginView: View {
     @State var password: String = ""
     var body: some View {
         List {
-            TextField("Email", text: $mail)
-            TextField("Password", text: $password)
+            EmailInputView(placeHolder: "Email", txt: $mail)
+            SecureField("Password", text: $password)
             Button("Login") {
                 login()
             }
@@ -64,7 +65,7 @@ struct RegisterView: View {
     @Binding var httpModule: HTTPModule
     @Binding var settings: AppSettings
     
-    @State var localUser: User = User(id: 404, firstname: "", lastname: "", mail: "", released: false, role: "error")
+    @State var localUser: User = User(id: "error", firstname: "", lastname: "", mail: "", released: false, role: UserRole(id: 1, name: "", description: "", createdAt: "", updatedAt: ""), updatedAt: "", createdAt: "")
     @State var password: String = ""
     @State var passwordConfirm: String = ""
     @State var error: String = ""
@@ -72,7 +73,7 @@ struct RegisterView: View {
         List {
             TextField("Firstname", text: $localUser.firstname)
             TextField("Lastname", text: $localUser.lastname)
-            TextField("Email", text: $localUser.mail)
+            EmailInputView(placeHolder: "Email", txt: $localUser.mail)
             SecureField("Password", text: $password)
             SecureField("Confirm password", text: $passwordConfirm)
             if error != "" {
@@ -94,6 +95,23 @@ struct RegisterView: View {
                 print("Registration failed: \(error.localizedDescription)")
                 self.error = error.localizedDescription
             }
+        }
+    }
+}
+
+struct EmailInputView: View {
+    var placeHolder: String = ""
+    @Binding var txt: String
+    
+    var body: some View {
+        TextField(placeHolder, text: $txt)
+            .keyboardType(.emailAddress)
+            .textContentType(.emailAddress)
+            .onReceive(Just(txt)) { newValue in
+                let validString = newValue.filter { "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ._-+$!~&=#[]@".contains($0) }
+                if validString != newValue {
+                    self.txt = validString
+                }
         }
     }
 }
