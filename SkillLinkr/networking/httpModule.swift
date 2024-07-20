@@ -8,14 +8,11 @@
 import Foundation
 import SwiftUI
 
-import Foundation
-import SwiftUI
-
 class HTTPModule: ObservableObject {
-    @Binding var settings: AppSettings
+    @Binding var settings: AppData
     @State var appDataModule: AppDataModule
     
-    init(settings: Binding<AppSettings>, appDataModule: AppDataModule) {
+    init(settings: Binding<AppData>, appDataModule: AppDataModule) {
         self._settings = settings
         self.appDataModule = appDataModule
     }
@@ -572,5 +569,160 @@ class HTTPModule: ObservableObject {
         }
         
         task.resume()
+    }
+}
+
+typealias HTTPHeaders = [String : String]
+typealias ImageUploadResult = Result<Response, ResponseError>
+typealias Parameters = [String: Any]
+
+struct Response {
+    let statusCode: Int
+    let body: Parameters?
+    
+    init(from data: Data, statusCode: Int) throws {
+        self.statusCode = statusCode
+        let jsonObject = try JSONSerialization.jsonObject(with: data, options: []) as? Parameters
+        self.body = jsonObject
+    }
+}
+
+struct ResponseError: Error {
+    let statusCode: Int
+    let error: Error
+}
+
+extension URLRequest {
+    init(url: URL, method: String, headers: HTTPHeaders?) {
+        self.init(url: url)
+        httpMethod = method
+        if let headers = headers {
+            headers.forEach {
+                setValue($0.1, forHTTPHeaderField: $0.0)
+            }
+        }
+    }
+}
+
+class ImageUploader {
+    @Binding var appData: AppData
+    let uploadImage: UIImage
+    let number: Int
+    let boundary = "example.boundary.\(ProcessInfo.processInfo.globallyUniqueString)"
+    let key: String
+    var fieldName: String = "upload_image"
+    var fileName: String {
+        return "\(appData.user?.id ?? "noOwner")_\(key)"
+    }
+    var endpointURI: URL {
+        return URL(string: appData.dataURL)!
+    }
+    
+    var parameters: Parameters? {
+        return [
+            "number": number
+        ]
+    }
+    var headers: HTTPHeaders {
+        return [
+            "Content-Type": "multipart/form-data; boundary=\(boundary)",
+            "Accept": "application/json"
+        ]
+    }
+    
+    init(appData: Binding<AppData>, uploadImage: UIImage, number: Int, key: String) {
+        self._appData = appData
+        self.uploadImage = uploadImage
+        self.number = number
+        self.key = key
+    }
+    
+    func upload(completionHandler: @escaping (ImageUploadResult) -> Void) {
+        let imageData = uploadImage.jpegData(compressionQuality: 1)!
+        let mimeType = imageData.mimeType!
+
+        var request = URLRequest(url: endpointURI)
+        request.httpMethod = "POST"
+        request.allHTTPHeaderFields = headers
+        request.httpBody = createHttpBody(binaryData: imageData, mimeType: mimeType)
+
+        let session = URLSession(configuration: .default)
+        let task = session.dataTask(with: request) { (data, urlResponse, error) in
+            let statusCode = (urlResponse as? HTTPURLResponse)?.statusCode ?? 0
+            
+            if let error = error {
+                print("Error: \(error.localizedDescription)")
+                let _error = ResponseError(statusCode: statusCode, error: AnyError(error))
+                completionHandler(.failure(_error))
+                return
+            }
+            
+            guard let data = data else {
+                let _error = ResponseError(statusCode: statusCode, error: AnyError(NSError(domain: "No data received", code: statusCode, userInfo: nil)))
+                completionHandler(.failure(_error))
+                return
+            }
+            
+            if (200..<300).contains(statusCode) {
+                do {
+                    let value = try Response(from: data, statusCode: statusCode)
+                    completionHandler(.success(value))
+                } catch {
+                    let _error = ResponseError(statusCode: statusCode, error: AnyError(error))
+                    completionHandler(.failure(_error))
+                }
+            } else {
+                print("Server returned status code: \(statusCode)")
+                let tmpError = NSError(domain: "Server error", code: statusCode, userInfo: nil)
+                let _error = ResponseError(statusCode: statusCode, error: AnyError(tmpError))
+                completionHandler(.failure(_error))
+            }
+        }
+        task.resume()
+    }
+    
+    private func createHttpBody(binaryData: Data, mimeType: String) -> Data {
+        var postContent = "--\(boundary)\r\n"
+        postContent += "Content-Disposition: form-data; name=\"\(fieldName)\"; filename=\"\(fileName)\"\r\n"
+        postContent += "Content-Type: \(mimeType)\r\n\r\n"
+
+        var data = Data()
+        guard let postData = postContent.data(using: .utf8) else { return data }
+        data.append(postData)
+        data.append(binaryData)
+        
+        if let parameters = parameters {
+            var content = ""
+            parameters.forEach {
+                content += "\r\n--\(boundary)\r\n"
+                content += "Content-Disposition: form-data; name=\"\($0.key)\"\r\n\r\n"
+                content += "\($0.value)"
+            }
+            if let postData = content.data(using: .utf8) { data.append(postData) }
+        }
+        
+        guard let endData = "\r\n--\(boundary)--\r\n".data(using: .utf8) else { return data }
+        data.append(endData)
+        return data
+    }
+}
+
+extension Data {
+    var mimeType: String? {
+        var values = [UInt8](repeating: 0, count: 1)
+        copyBytes(to: &values, count: 1)
+        
+        switch values[0] {
+        case 0xFF:
+            return "image/jpeg"
+        case 0x89:
+            return "image/png"
+        case 0x47:
+            return "image/gif"
+        case 0x49, 0x4D:
+            return "image/tiff"
+        default:
+            return nil
+        }
     }
 }

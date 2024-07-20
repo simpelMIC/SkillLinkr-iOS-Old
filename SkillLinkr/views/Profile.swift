@@ -10,10 +10,10 @@ import SwiftUI
 
 struct ProfileView: View {
     @Binding var httpModule: HTTPModule
-    @Binding var settings: AppSettings
+    @Binding var appData: AppData
     @State var isSheetPresented: Bool = false
     var body: some View {
-        if $settings.user.wrappedValue == nil {
+        if $appData.user.wrappedValue == nil {
             Text("Fetching user data...")
         } else {
             ScrollView {
@@ -34,7 +34,7 @@ struct ProfileView: View {
                     .aspectRatio(contentMode: .fill)
                     .frame(maxWidth: .infinity, maxHeight: 350)
                     .clipped()
-                    Text($settings.user.wrappedValue?.firstname ?? "Fetching user data...")
+                    Text($appData.user.wrappedValue?.firstname ?? "Fetching user data...")
                         .font(.title)
                 }
             }
@@ -50,7 +50,7 @@ struct ProfileView: View {
                 getUser()
             }
             .sheet(isPresented: $isSheetPresented, content: {
-                PatchUserView(httpModule: $httpModule, settings: $settings) {
+                PatchProfileView(httpModule: $httpModule, appData: $appData, navigationBarTitleMode: .inline) {
                     isSheetPresented.toggle()
                     getUser()
                 }
@@ -63,75 +63,7 @@ struct ProfileView: View {
             switch result {
             case .success(let userResponse):
                 print("User details fetched successfully!")
-                settings.user = User(id: userResponse.message.id, firstname: userResponse.message.firstname, lastname: userResponse.message.lastname, mail: userResponse.message.mail, released: userResponse.message.released, role: userResponse.message.role, updatedAt: userResponse.message.updatedAt, createdAt: userResponse.message.createdAt)
-            case .failure(let error):
-                print("Failed to fetch user details: \(error.localizedDescription)")
-            }
-        }
-    }
-}
-
-struct PatchUserView: View {
-    @Binding var httpModule: HTTPModule
-    @Binding var settings: AppSettings
-    @State var localUser: User = User(id: "", firstname: "", lastname: "", mail: "", released: false, role: UserRole(id: 0, name: "", description: "", createdAt: "", updatedAt: ""), updatedAt: "", createdAt: "")
-    @State var message: String = ""
-    var onSave: () -> Void
-    var body: some View {
-        NavigationStack {
-            ScrollView {
-                VStack {
-                    TextField("Firstname", text: $localUser.firstname)
-                    TextField("Lastname", text: $localUser.lastname)
-                }
-                .padding(20)
-            }
-            .navigationTitle("Profile Settings")
-            .toolbar {
-                Button("Save") {
-                    updateUser()
-                    onSave()
-                }
-            }
-        }
-        .onAppear {
-            localUser = $settings.user.wrappedValue ?? User(id: "", firstname: "", lastname: "", mail: "", released: false, role: UserRole(id: 0, name: "", description: "", createdAt: "", updatedAt: ""), updatedAt: "", createdAt: "")
-        }
-        .onDisappear {
-            localUser = User(id: "", firstname: "", lastname: "", mail: "", released: false, role: UserRole(id: 0, name: "", description: "", createdAt: "", updatedAt: ""), updatedAt: "", createdAt: "")
-            getUser()
-        }
-    }
-    
-    func updateUser() {
-            httpModule.patchUser(
-                token: $settings.userToken.wrappedValue ?? "",
-                patchUserId: $localUser.id.wrappedValue,
-                mail: $localUser.mail.wrappedValue,
-                firstname: $localUser.firstname.wrappedValue,
-                lastname: $localUser.lastname.wrappedValue
-            ) { result in
-                switch result {
-                case .success(let response):
-                    DispatchQueue.main.async {
-                        message = response.message
-                        print("User has been patched successfully")
-                    }
-                case .failure(let error):
-                    DispatchQueue.main.async {
-                        message = "Failed to update user: \(error.localizedDescription)"
-                        print("Failed to patch user: \(error.localizedDescription)")
-                    }
-                }
-            }
-        }
-    
-    func getUser() {
-        httpModule.getUser { result in
-            switch result {
-            case .success(let userResponse):
-                print("User details fetched successfully!")
-                settings.user = User(id: userResponse.message.id, firstname: userResponse.message.firstname, lastname: userResponse.message.lastname, mail: userResponse.message.mail, released: userResponse.message.released, role: userResponse.message.role, updatedAt: userResponse.message.updatedAt, createdAt: userResponse.message.createdAt)
+                appData.user = User(id: userResponse.message.id, firstname: userResponse.message.firstname, lastname: userResponse.message.lastname, mail: userResponse.message.mail, released: userResponse.message.released, role: userResponse.message.role, updatedAt: userResponse.message.updatedAt, createdAt: userResponse.message.createdAt)
             case .failure(let error):
                 print("Failed to fetch user details: \(error.localizedDescription)")
             }
@@ -141,6 +73,6 @@ struct PatchUserView: View {
 
 #Preview {
     NavigationStack {
-        ProfileView(httpModule: .constant(HTTPModule(settings: .constant(AppSettings(apiURL: "https://skilllinkr.micstudios.de/api", userToken: "")), appDataModule: AppDataModule(settings: .constant(AppSettings(apiURL: "https://skilllinkr.micstudios.de/api", user: User(id: "", firstname: "", lastname: "", mail: "", released: false, role: UserRole(id: 0, name: "", description: "", createdAt: "", updatedAt: ""), updatedAt: "", createdAt: "")))))), settings: .constant(AppSettings(apiURL: "https://skilllinkr.micstudios.de/api", user: User(id: "", firstname: "", lastname: "", mail: "", released: false, role: UserRole(id: 0, name: "", description: "", createdAt: "", updatedAt: ""), updatedAt: "", createdAt: ""))))
+        ProfileView(httpModule: .constant(HTTPModule(settings: .constant(AppData(apiURL: "", dataURL: "https://images.skilllinkr.micstudios.de/", appSettings: AppSettings())), appDataModule: AppDataModule(appData: .constant(AppData(apiURL: "", dataURL: "https://images.skilllinkr.micstudios.de/", appSettings: AppSettings()))))), appData: .constant(AppData(apiURL: "", dataURL: "https://images.skilllinkr.micstudios.de/s", user: User(id: "", firstname: "Thorsten", lastname: "Schmidt", mail: "", released: true, role: UserRole(id: 0, name: "", description: "", createdAt: "", updatedAt: ""), updatedAt: "", createdAt: ""), appSettings: AppSettings())))
     }
 }

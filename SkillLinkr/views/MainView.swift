@@ -8,31 +8,31 @@
 import SwiftUI
 
 struct MainView: View {
-    @State var settings: AppSettings = AppSettings(apiURL: "https://skilllinkr.micstudios.de/api")
+    @State var appData: AppData = AppData(apiURL: "https://skilllinkr.micstudios.de/api", dataURL: "https://images.skilllinkr.micstudios.de/", appSettings: AppSettings())
     var body: some View {
-        ContentView(httpModule: HTTPModule(settings: $settings, appDataModule: AppDataModule(settings: $settings)), settings: $settings)
+        ContentView(httpModule: HTTPModule(settings: $appData, appDataModule: AppDataModule(appData: $appData)), appData: $appData)
             .task {
-                AppDataModule(settings: $settings).load()
+                AppDataModule(appData: $appData).load()
             }
     }
 }
 
 struct ContentView: View {
     @State var httpModule: HTTPModule
-    @Binding var settings: AppSettings
+    @Binding var appData: AppData
     var body: some View {
-        if $settings.userToken.wrappedValue == nil || $settings.userToken.wrappedValue == "" {
-            OnboardingView(httpModule: $httpModule, settings: $settings)
+        if $appData.userToken.wrappedValue == nil || $appData.userToken.wrappedValue == "" {
+            OnboardingView(httpModule: $httpModule, appData: $appData)
         } else {
-            AppView(httpModule: $httpModule, settings: $settings)
+            AppView(httpModule: $httpModule, appData: $appData)
                 .onAppear {
                     httpModule.getUserRelease { result in
                         switch result {
                         case .success(let userReleaseResponse):
                             if userReleaseResponse.status == "success" {
-                                settings.user = User(id: "", firstname: "", lastname: "", mail: "", released: true, role: UserRole(id: 0, name: "", description: "", createdAt: "", updatedAt: ""), updatedAt: "", createdAt: "")
+                                appData.user = User(id: "", firstname: "", lastname: "", mail: "", released: true, role: UserRole(id: 0, name: "", description: "", createdAt: "", updatedAt: ""), updatedAt: "", createdAt: "")
                             } else {
-                                settings.user = User(id: "", firstname: "", lastname: "", mail: "", released: false, role: UserRole(id: 0, name: "", description: "", createdAt: "", updatedAt: ""), updatedAt: "", createdAt: "")
+                                appData.user = User(id: "", firstname: "", lastname: "", mail: "", released: false, role: UserRole(id: 0, name: "", description: "", createdAt: "", updatedAt: ""), updatedAt: "", createdAt: "")
                             }
                         case .failure(let error):
                             print("Failed to validate account access: \(error.localizedDescription)")
@@ -45,26 +45,26 @@ struct ContentView: View {
 
 struct AppView: View {
     @Binding var httpModule: HTTPModule
-    @Binding var settings: AppSettings
+    @Binding var appData: AppData
     var body: some View {
-        if settings.user?.released ?? false == true {
+        if appData.user?.released ?? false == true {
             TabView {
                 NavigationStack {
-                    FeedView(httpModule: $httpModule, settings: $settings)
+                    FeedView(httpModule: $httpModule, appData: $appData)
                 }
                 .tabItem {
                     Image(systemName: "square.stack.fill")
                     Text("Feed")
                 }
                 NavigationStack {
-                    ProfileView(httpModule: $httpModule, settings: $settings)
+                    ProfileView(httpModule: $httpModule, appData: $appData)
                 }
                 .tabItem {
                     Image(systemName: "person")
                     Text("My Profile")
                 }
                 NavigationStack {
-                    SettingsView(httpModule: $httpModule, settings: $settings)
+                    SettingsView(httpModule: $httpModule, appData: $appData)
                 }
                 .tabItem {
                     Image(systemName: "gear")
@@ -77,8 +77,8 @@ struct AppView: View {
                 .font(.title)
                 HStack {
                     Button("Log Out", role: .destructive) {
-                        settings.userToken = nil
-                        AppDataModule(settings: $settings).save()
+                        appData.userToken = nil
+                        AppDataModule(appData: $appData).save()
                     }
                     .buttonStyle(.borderedProminent)
                     Button("Retry") {
@@ -86,9 +86,9 @@ struct AppView: View {
                             switch result {
                             case .success(let userReleaseResponse):
                                 if userReleaseResponse.status == "success" {
-                                    settings.user = User(id: "", firstname: "", lastname: "", mail: "", released: true, role: UserRole(id: 0, name: "", description: "", createdAt: "", updatedAt: ""), updatedAt: "", createdAt: "")
+                                    appData.user = User(id: "", firstname: "", lastname: "", mail: "", released: true, role: UserRole(id: 0, name: "", description: "", createdAt: "", updatedAt: ""), updatedAt: "", createdAt: "")
                                 } else {
-                                    settings.user = User(id: "", firstname: "", lastname: "", mail: "", released: false, role: UserRole(id: 0, name: "", description: "", createdAt: "", updatedAt: ""), updatedAt: "", createdAt: "")
+                                    appData.user = User(id: "", firstname: "", lastname: "", mail: "", released: false, role: UserRole(id: 0, name: "", description: "", createdAt: "", updatedAt: ""), updatedAt: "", createdAt: "")
                                 }
                             case .failure(let error):
                                 print("Failed to validate account access: \(error.localizedDescription)")

@@ -11,7 +11,7 @@ import SwiftUI
 
 struct OnboardingView: View {
     @Binding var httpModule: HTTPModule
-    @Binding var settings: AppSettings
+    @Binding var appData: AppData
     var body: some View {
         NavigationStack {
             ZStack {
@@ -23,11 +23,11 @@ struct OnboardingView: View {
                         .font(.title)
                     HStack {
                         NavigationLink("Login") {
-                            LoginView(httpModule: $httpModule, settings: $settings)
+                            LoginView(httpModule: $httpModule, appData: $appData)
                         }
                         .buttonStyle(.borderedProminent)
                         NavigationLink("Or create a new account") {
-                            RegisterView(httpModule: $httpModule, settings: $settings)
+                            RegisterView(httpModule: $httpModule, appData: $appData)
                         }
                     }
                 }
@@ -38,7 +38,7 @@ struct OnboardingView: View {
 
 struct LoginView: View {
     @Binding var httpModule: HTTPModule
-    @Binding var settings: AppSettings
+    @Binding var appData: AppData
     
     @State var mail: String = ""
     @State var password: String = ""
@@ -55,7 +55,9 @@ struct LoginView: View {
         .navigationTitle("Login")
         .toolbar {
             Button("Login") {
-                login()
+                withAnimation {
+                    login()
+                }
             }
             .disabled(mail.isEmpty || password.isEmpty)
         }
@@ -76,7 +78,7 @@ struct LoginView: View {
 
 struct RegisterView: View {
     @Binding var httpModule: HTTPModule
-    @Binding var settings: AppSettings
+    @Binding var appData: AppData
     
     @State var localUser: User = User(id: "error", firstname: "", lastname: "", mail: "", released: false, role: UserRole(id: 1, name: "", description: "", createdAt: "", updatedAt: ""), updatedAt: "", createdAt: "")
     @State var password: String = ""
@@ -96,7 +98,9 @@ struct RegisterView: View {
         .navigationTitle("Register")
         .toolbar {
             Button("Register") {
-                register()
+                withAnimation {
+                    register()
+                }
             }
             .disabled(localUser.firstname.isEmpty || localUser.lastname.isEmpty || localUser.mail.isEmpty || password.isEmpty || passwordConfirm.isEmpty)
         }
@@ -132,8 +136,4 @@ struct EmailInputView: View {
                 }
         }
     }
-}
-
-#Preview {
-    OnboardingView(httpModule: .constant(HTTPModule(settings: .constant(AppSettings(apiURL: "https://skilllinkr.micstudios.de/api", userToken: "")), appDataModule: AppDataModule(settings: .constant(AppSettings(apiURL: "https://skilllinkr.micstudios.de/api", user: User(id: "", firstname: "", lastname: "", mail: "", released: false, role: UserRole(id: 0, name: "", description: "", createdAt: "", updatedAt: ""), updatedAt: "", createdAt: "")))))), settings: .constant(AppSettings(apiURL: "https://skilllinkr.micstudios.de/api", user: User(id: "", firstname: "", lastname: "", mail: "", released: false, role: UserRole(id: 0, name: "", description: "", createdAt: "", updatedAt: ""), updatedAt: "", createdAt: ""))))
 }

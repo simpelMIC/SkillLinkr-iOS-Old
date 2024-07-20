@@ -105,3 +105,11 @@ struct GetUserReleaseResponse: Codable {
     var status: String
     var message: String
 }
+
+struct AnyError: Error {
+    let error: Error
+    
+    init(_ error: Error) {
+        self.error = error
+    }
+}

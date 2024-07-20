@@ -8,11 +8,19 @@
 import Foundation
 import SwiftUI
 
+
+enum SwipeState {
+    case left
+    case non
+    case right
+}
+
 struct FeedView: View {
     @Binding var httpModule: HTTPModule
-    @Binding var settings: AppSettings
+    @Binding var appData: AppData
     @State var showDetailView: Bool = false
     @State var naviUser: User?
+    @State var swipeState: SwipeState = .non
     
     @State var users: [User] = [
         User(id: "1", firstname: "Test1", lastname: "Testmann1", mail: "test@testmann.com", released: true, role: UserRole(id: 0, name: "User", description: "User", createdAt: "", updatedAt: ""), updatedAt: "", createdAt: ""),
@@ -28,9 +36,10 @@ struct FeedView: View {
         VStack {
             HStack {
                 Text("Feed")
-                    .font(.title2)
+                    .font(.title)
             }
-            StackCardView(users: $users, onSwipeLeft: { user in
+            .padding()
+            StackCardView(users: $users, swipeState: $swipeState, appData: $appData, showActionButtons: appData.appSettings.showFeedActionButtons ?? false, onSwipeLeft: { user in
                 onDislike(user)
             }, onSwipeRight: { user in
                 onLike(user)
@@ -40,7 +49,7 @@ struct FeedView: View {
             .padding()
         }
         .navigationDestination(isPresented: $showDetailView) {
-            
+            Text(naviUser?.firstname ?? "No User")
         }
     }
     
@@ -60,21 +69,35 @@ struct FeedView: View {
 
 struct StackCardView: View {
     @Binding var users: [User]
-    @State private var removalTransition: AnyTransition = .trailingBottom
+    @Binding var swipeState: SwipeState
+    @Binding var appData: AppData
+    @State private var removalTransition: AnyTransitionState = .trailingBottom
     private let dragThreshold: CGFloat = 80.0
     @GestureState private var dragState: DragState = .inactive
     @State private var lastIndex: Int = 1
     @State var cardViews: [CardView] = []
+    @State var showActionButtons: Bool
     
     var onSwipeLeft: (_ user: User) -> Void
     var onSwipeRight: (_ user: User) -> Void
     var onClick: (_ user: User) -> Void
+    
+    var removalAnyTransition: AnyTransition {
+        if removalTransition == .leadingBottom {
+            return .middleBottom
+        } else {
+            return .middleBottom
+        }
+    }
 
-    init(users: Binding<[User]>,
+    init(users: Binding<[User]>, swipeState: Binding<SwipeState>, appData: Binding<AppData>, showActionButtons: Bool,
          onSwipeLeft: @escaping (_ user: User) -> Void,
          onSwipeRight: @escaping (_ user: User) -> Void,
          onClick: @escaping (_ user: User) -> Void) {
         self._users = users
+        self._swipeState = swipeState
+        self._appData = appData
+        self.showActionButtons = showActionButtons
         self.onSwipeLeft = onSwipeLeft
         self.onSwipeRight = onSwipeRight
         self.onClick = onClick
@@ -85,6 +108,11 @@ struct StackCardView: View {
             }
             return views
         }())
+    }
+    
+    enum AnyTransitionState {
+        case leadingBottom
+        case trailingBottom
     }
     
     enum DragState {
@@ -136,7 +164,7 @@ struct StackCardView: View {
                                 .cornerRadius(20)
                                 .opacity(self.dragState.translation.width < -self.dragThreshold && self.isTopCard(cardView: cardView) ? 1.0 : 0)
                             Image(systemName: "xmark")
-                                .foregroundColor(.red)
+                                .foregroundStyle(.red)
                                 .font(.system(size: 100))
                                 .opacity(self.dragState.translation.width < -self.dragThreshold && self.isTopCard(cardView: cardView) ? 1.0 : 0)
                             
@@ -146,7 +174,7 @@ struct StackCardView: View {
                                 .cornerRadius(20)
                                 .opacity(self.dragState.translation.width > self.dragThreshold && self.isTopCard(cardView: cardView) ? 1.0 : 0)
                             Image(systemName: "heart.fill")
-                                .foregroundColor(.green)
+                                .foregroundStyle(.green)
                                 .font(.system(size: 100))
                                 .opacity(self.dragState.translation.width > self.dragThreshold && self.isTopCard(cardView: cardView) ? 1.0 : 0)
                         }
@@ -155,7 +183,7 @@ struct StackCardView: View {
                     .scaleEffect(self.dragState.isDragging && self.isTopCard(cardView: cardView) ? 0.95 : 1.0)
                     .rotationEffect(Angle(degrees: self.isTopCard(cardView: cardView) ? Double(self.dragState.translation.width / 10) : 0))
                     .animation(Animation.interpolatingSpring(stiffness: 180, damping: 100))
-                    .transition(self.removalTransition)
+                    .transition(removalAnyTransition)
                     .gesture(LongPressGesture(minimumDuration: 0.01)
                         .sequenced(before: DragGesture())
                         .updating(self.$dragState, body: { (value, state, transaction) in
@@ -174,10 +202,12 @@ struct StackCardView: View {
                                 }
                                 if drag.translation.width < -self.dragThreshold {
                                     self.removalTransition = .leadingBottom
-                                }
-                                
-                                if drag.translation.width > self.dragThreshold {
+                                    swipeState = .left
+                                } else if drag.translation.width > self.dragThreshold {
                                     self.removalTransition = .trailingBottom
+                                    swipeState = .right
+                                } else {
+                                    swipeState = .non
                                 }
                             })
                                 .onEnded({ (value) in
@@ -188,18 +218,37 @@ struct StackCardView: View {
                                         self.moveCard()
                                     }
                                     if drag.translation.width < -self.dragThreshold {
-                                        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                                        UIImpactFeedbackGenerator(style: .soft).impactOccurred()
                                         onSwipeLeft(cardView.user)
-                                    }
-                                    
-                                    if drag.translation.width > self.dragThreshold {
-                                        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                                        swipeState = .non
+                                    } else if drag.translation.width > self.dragThreshold {
+                                        UIImpactFeedbackGenerator(style: .soft).impactOccurred()
                                         onSwipeRight(cardView.user)
+                                        swipeState = .non
+                                    } else {
+                                        
                                     }
                                 })
                     )
                 }
+                .onChange(of: swipeState) {
+                    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                }
             }
+        }
+        if $appData.appSettings.showFeedActionButtons.wrappedValue ?? false {
+            HStack {
+                ActionButtonView(label: .dislike, swipeState: $swipeState) {
+                    removalTransition = .leadingBottom
+                    self.moveCard()
+                }
+                ActionButtonView(label: .like, swipeState: $swipeState) {
+                    removalTransition = .trailingBottom
+                    self.moveCard()
+                }
+            }
+            .padding()
+            .frame(height: 100)
         }
     }
     
@@ -214,13 +263,6 @@ struct StackCardView: View {
         cardViews.removeFirst()
         
         self.lastIndex += 1
-        @State var user = users[lastIndex % users.count]
-        
-        let newCardView = CardView(user: user)
-        cardViews.append(newCardView)
-    }
-    
-    public func createFirstCard() {
         @State var user = users[lastIndex % users.count]
         
         let newCardView = CardView(user: user)
@@ -257,18 +299,80 @@ struct CardView: View, Identifiable {
 
 extension AnyTransition {
     static var trailingBottom: AnyTransition {
-        AnyTransition.asymmetric(insertion: .identity, removal: AnyTransition.move(edge: .trailing).combined(with: .move(edge: .bottom))
-        )
+        AnyTransition.asymmetric(insertion: .identity, removal: AnyTransition.move(edge: .trailing).combined(with: .move(edge: .bottom)))
     }
     
     static var leadingBottom: AnyTransition {
-        AnyTransition.asymmetric(insertion: .identity, removal: AnyTransition.move(edge: .leading).combined(with: .move(edge: .bottom))
-        )
+        AnyTransition.asymmetric(insertion: .identity, removal: AnyTransition.move(edge: .leading).combined(with: .move(edge: .bottom)))
+    }
+    
+    static var middleBottom: AnyTransition {
+        AnyTransition.asymmetric(insertion: .identity, removal: AnyTransition.move(edge: .bottom).combined(with: .move(edge: .bottom)))
+    }
+}
+
+struct ActionButtonView: View {
+    enum ActionButtonLabel {
+        case dislike
+        case details
+        case like
+    }
+    
+    let label: ActionButtonLabel
+    @Binding var swipeState: SwipeState
+    
+    var action: () -> Void
+    var body: some View {
+        Button {
+            action()
+        } label: {
+            ZStack {
+                if label == .dislike {
+                    if swipeState == .left {
+                        Rectangle()
+                            .cornerRadius(15)
+                            .foregroundStyle(.red)
+                        Image(systemName: "xmark")
+                            .font(.largeTitle)
+                    } else {
+                        Rectangle()
+                            .cornerRadius(15)
+                            .foregroundStyle(.fill)
+                        Image(systemName: "xmark")
+                            .font(.largeTitle)
+                            .foregroundStyle(.red)
+                    }
+                } else if label == .details {
+                    Rectangle()
+                        .cornerRadius(15)
+                        .foregroundStyle(.fill)
+                    Image(systemName: "info")
+                        .font(.largeTitle)
+                        .foregroundStyle(.primary)
+                } else {
+                    if swipeState == .right {
+                        Rectangle()
+                            .cornerRadius(15)
+                            .foregroundStyle(.green)
+                        Image(systemName: "heart.fill")
+                            .font(.largeTitle)
+                    } else {
+                        Rectangle()
+                            .cornerRadius(15)
+                            .foregroundStyle(.fill)
+                        Image(systemName: "heart.fill")
+                            .font(.largeTitle)
+                            .foregroundStyle(.green)
+                    }
+                }
+            }
+        }
+        .buttonStyle(.plain)
     }
 }
 
 #Preview {
     NavigationStack {
-        FeedView(httpModule: .constant(HTTPModule(settings: .constant(AppSettings(apiURL: "https://skilllinkr.micstudios.de/api", userToken: "")), appDataModule: AppDataModule(settings: .constant(AppSettings(apiURL: "https://skilllinkr.micstudios.de/api", user: User(id: "", firstname: "", lastname: "", mail: "", released: false, role: UserRole(id: 0, name: "", description: "", createdAt: "", updatedAt: ""), updatedAt: "", createdAt: "")))))), settings: .constant(AppSettings(apiURL: "https://skilllinkr.micstudios.de/api", user: User(id: "", firstname: "", lastname: "", mail: "", released: false, role: UserRole(id: 0, name: "", description: "", createdAt: "", updatedAt: ""), updatedAt: "", createdAt: ""))))
+        FeedView(httpModule: .constant(HTTPModule(settings: .constant(AppData(apiURL: "", dataURL: "https://images.skilllinkr.micstudios.de/", appSettings: AppSettings())), appDataModule: AppDataModule(appData: .constant(AppData(apiURL: "", dataURL: "https://images.skilllinkr.micstudios.de/", appSettings: AppSettings()))))), appData: .constant(AppData(apiURL: "", dataURL: "https://images.skilllinkr.micstudios.de/", user: User(id: "", firstname: "Thorsten", lastname: "Schmidt", mail: "", released: true, role: UserRole(id: 0, name: "", description: "", createdAt: "", updatedAt: ""), updatedAt: "", createdAt: ""), appSettings: AppSettings())))
     }
 }
