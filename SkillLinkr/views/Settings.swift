@@ -13,12 +13,36 @@ struct SettingsView: View {
     @Binding var settings: AppSettings
     var body: some View {
         List {
-            NavigationLink("Developer Settings") {
-                DeveloperSettingsView(httpModule: $httpModule, settings: $settings)
+            Section("Your Account") {
+                NavigationLink("Edit Profile") {
+                    PatchUserView(httpModule: $httpModule, settings: $settings) {
+                        
+                    }
+                }
+                Button("Log Out", role: .destructive) {
+                    settings.userToken = nil
+                    AppDataModule(settings: $settings).save()
+                }
             }
-            Button("Log Out", role: .destructive) {
-                settings.userToken = nil
-                AppDataModule(settings: $settings).save()
+            Section("How you use SkillLinkr") {
+                
+            }
+            Section("What you see") {
+                
+            }
+            Section("Who can see your content") {
+                
+            }
+            Section("How others can interact with you") {
+                
+            }
+            Section("Your app and your media") {
+                
+            }
+            Section("Other information and Support-Methods") {
+                NavigationLink("Developer Settings") {
+                    DeveloperSettingsView(httpModule: $httpModule, settings: $settings)
+                }
             }
         }
         .navigationTitle("Settings")

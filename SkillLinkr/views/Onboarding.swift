@@ -51,11 +51,14 @@ struct LoginView: View {
             if error != nil {
                 Text(error ?? "")
             }
+        }
+        .navigationTitle("Login")
+        .toolbar {
             Button("Login") {
                 login()
             }
+            .disabled(mail.isEmpty || password.isEmpty)
         }
-        .navigationTitle("Login")
     }
     
     func login() {
@@ -89,11 +92,14 @@ struct RegisterView: View {
             if error != "" {
                 Text($error.wrappedValue)
             }
+        }
+        .navigationTitle("Register")
+        .toolbar {
             Button("Register") {
                 register()
             }
+            .disabled(localUser.firstname.isEmpty || localUser.lastname.isEmpty || localUser.mail.isEmpty || password.isEmpty || passwordConfirm.isEmpty)
         }
-        .navigationTitle("Register")
     }
     
     func register() {
