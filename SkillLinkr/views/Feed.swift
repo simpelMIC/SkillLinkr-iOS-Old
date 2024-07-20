@@ -11,14 +11,9 @@ import SwiftUI
 struct FeedView: View {
     @Binding var httpModule: HTTPModule
     @Binding var settings: AppSettings
-    var body: some View {
-        StackCardView(httpModule: $httpModule, settings: $settings)
-    }
-}
-
-struct StackCardView: View {
-    @Binding var httpModule: HTTPModule
-    @Binding var settings: AppSettings
+    @State var showDetailView: Bool = false
+    @State var naviUser: User?
+    
     @State var users: [User] = [
         User(id: "1", firstname: "Test1", lastname: "Testmann1", mail: "test@testmann.com", released: true, role: UserRole(id: 0, name: "User", description: "User", createdAt: "", updatedAt: ""), updatedAt: "", createdAt: ""),
         User(id: "2", firstname: "Test2", lastname: "Testmann2", mail: "test@testmann.com", released: true, role: UserRole(id: 0, name: "User", description: "User", createdAt: "", updatedAt: ""), updatedAt: "", createdAt: ""),
@@ -29,9 +24,68 @@ struct StackCardView: View {
         User(id: "7", firstname: "Test7", lastname: "Testmann7", mail: "test@testmann.com", released: true, role: UserRole(id: 0, name: "User", description: "User", createdAt: "", updatedAt: ""), updatedAt: "", createdAt: "")
     ]
     
-    @State private var removalTransition: AnyTransition = .trailingBottom
+    var body: some View {
+        VStack {
+            HStack {
+                Text("Feed")
+                    .font(.title2)
+            }
+            StackCardView(users: $users, onSwipeLeft: { user in
+                onDislike(user)
+            }, onSwipeRight: { user in
+                onLike(user)
+            }, onClick: { user in
+                onClick(user)
+            })
+            .padding()
+        }
+        .navigationDestination(isPresented: $showDetailView) {
+            
+        }
+    }
     
+    func onClick(_ user: User) {
+        naviUser = user
+        showDetailView.toggle()
+    }
+    
+    func onLike(_ user: User) {
+        print("Swiped right")
+    }
+    
+    func onDislike(_ user: User) {
+        print("Swiped left")
+    }
+}
+
+struct StackCardView: View {
+    @Binding var users: [User]
+    @State private var removalTransition: AnyTransition = .trailingBottom
     private let dragThreshold: CGFloat = 80.0
+    @GestureState private var dragState: DragState = .inactive
+    @State private var lastIndex: Int = 1
+    @State var cardViews: [CardView] = []
+    
+    var onSwipeLeft: (_ user: User) -> Void
+    var onSwipeRight: (_ user: User) -> Void
+    var onClick: (_ user: User) -> Void
+
+    init(users: Binding<[User]>,
+         onSwipeLeft: @escaping (_ user: User) -> Void,
+         onSwipeRight: @escaping (_ user: User) -> Void,
+         onClick: @escaping (_ user: User) -> Void) {
+        self._users = users
+        self.onSwipeLeft = onSwipeLeft
+        self.onSwipeRight = onSwipeRight
+        self.onClick = onClick
+        _cardViews = State(initialValue: {
+            var views = [CardView]()
+            for index in 0..<2 {
+                views.append(CardView(user: users.wrappedValue[index]))
+            }
+            return views
+        }())
+    }
     
     enum DragState {
         case inactive
@@ -66,28 +120,15 @@ struct StackCardView: View {
         }
     }
     
-    @GestureState private var dragState: DragState = .inactive
-    
-    
-    @State private var lastIndex: Int = 1
-    
-    @State var cardViews: [CardView] = {
-        
-        var views = [CardView]()
-        
-        for index in 0..<2 {
-            views.append(CardView(title: "users[index].firstname", image: "Icon"))
-        }
-        
-        return views
-    }()
-    
     var body: some View {
         VStack {
             ZStack {
                 ForEach(cardViews) { cardView in
                     cardView
-                        .zIndex(self.isTopCard(cardView: cardView) ? 1 : 0)
+                        .onTapGesture {
+                            onClick(cardView.user)
+                        }
+                    .zIndex(self.isTopCard(cardView: cardView) ? 1 : 0)
                     .overlay(
                         ZStack {
                             Rectangle()
@@ -98,9 +139,6 @@ struct StackCardView: View {
                                 .foregroundColor(.red)
                                 .font(.system(size: 100))
                                 .opacity(self.dragState.translation.width < -self.dragThreshold && self.isTopCard(cardView: cardView) ? 1.0 : 0)
-                                .onAppear {
-                                    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-                                }
                             
                             
                             Rectangle()
@@ -111,28 +149,23 @@ struct StackCardView: View {
                                 .foregroundColor(.green)
                                 .font(.system(size: 100))
                                 .opacity(self.dragState.translation.width > self.dragThreshold && self.isTopCard(cardView: cardView) ? 1.0 : 0)
-                                .onAppear {
-                                    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-                                }
                         }
                     )
-                        
-                        
-                        .offset(x: self.isTopCard(cardView: cardView) ? self.dragState.translation.width : 0, y: self.isTopCard(cardView: cardView) ? self.dragState.translation.height : 0)
-                        .scaleEffect(self.dragState.isDragging && self.isTopCard(cardView: cardView) ? 0.95 : 1.0)
-                        .rotationEffect(Angle(degrees: self.isTopCard(cardView: cardView) ? Double(self.dragState.translation.width / 10) : 0))
-                        .animation(Animation.interpolatingSpring(stiffness: 180, damping: 100))
-                        .transition(self.removalTransition)
-                        .gesture(LongPressGesture(minimumDuration: 0.01)
-                            .sequenced(before: DragGesture())
-                            .updating(self.$dragState, body: { (value, state, transaction) in
-                                switch value {
-                                case .first(true):
-                                    state = .pressing
-                                case .second(true, let drag):
-                                    state = .dragging(translation: drag?.translation ?? .zero)
-                                default:
-                                    break
+                    .offset(x: self.isTopCard(cardView: cardView) ? self.dragState.translation.width : 0, y: self.isTopCard(cardView: cardView) ? self.dragState.translation.height : 0)
+                    .scaleEffect(self.dragState.isDragging && self.isTopCard(cardView: cardView) ? 0.95 : 1.0)
+                    .rotationEffect(Angle(degrees: self.isTopCard(cardView: cardView) ? Double(self.dragState.translation.width / 10) : 0))
+                    .animation(Animation.interpolatingSpring(stiffness: 180, damping: 100))
+                    .transition(self.removalTransition)
+                    .gesture(LongPressGesture(minimumDuration: 0.01)
+                        .sequenced(before: DragGesture())
+                        .updating(self.$dragState, body: { (value, state, transaction) in
+                            switch value {
+                            case .first(true):
+                                state = .pressing
+                            case .second(true, let drag):
+                                state = .dragging(translation: drag?.translation ?? .zero)
+                            default:
+                                break
                             }
                         })
                             .onChanged({ (value) in
@@ -147,15 +180,23 @@ struct StackCardView: View {
                                     self.removalTransition = .trailingBottom
                                 }
                             })
-                            
-                            .onEnded({ (value) in
-                                guard case .second(true, let drag?) = value else {
-                                    return
-                                }
-                                if drag.translation.width < -self.dragThreshold || drag.translation.width > self.dragThreshold {
-                                    self.moveCard()
-                                }
-                            })
+                                .onEnded({ (value) in
+                                    guard case .second(true, let drag?) = value else {
+                                        return
+                                    }
+                                    if drag.translation.width < -self.dragThreshold || drag.translation.width > self.dragThreshold {
+                                        self.moveCard()
+                                    }
+                                    if drag.translation.width < -self.dragThreshold {
+                                        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                                        onSwipeLeft(cardView.user)
+                                    }
+                                    
+                                    if drag.translation.width > self.dragThreshold {
+                                        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                                        onSwipeRight(cardView.user)
+                                    }
+                                })
                     )
                 }
             }
@@ -169,40 +210,45 @@ struct StackCardView: View {
         return index == 0
     }
     
-    private func moveCard() {
+    public func moveCard() {
         cardViews.removeFirst()
         
         self.lastIndex += 1
-        let user = users[lastIndex % users.count]
+        @State var user = users[lastIndex % users.count]
         
-        let newCardView = CardView(title: user.firstname, image: user.lastname)
+        let newCardView = CardView(user: user)
+        cardViews.append(newCardView)
+    }
+    
+    public func createFirstCard() {
+        @State var user = users[lastIndex % users.count]
         
+        let newCardView = CardView(user: user)
         cardViews.append(newCardView)
     }
 }
 
 struct CardView: View, Identifiable {
-    
-    let title: String
-    let image: String
+    @State var user: User
     
     let id = UUID()
     
     var body: some View {
-        Image(image)
+        Image("userIcon")
         .resizable()
         .scaledToFill()
         .frame(minWidth: 0, maxWidth: .infinity)
         .cornerRadius(20)
         .overlay(
             VStack {
-                Text(title)
+                Text(user.firstname)
                     .font(.system(.headline, design: .rounded))
                     .fontWeight(.bold)
                     .padding(.horizontal, 30)
                     .padding(.vertical, 10)
-                    .background(Color.white)
+                    .background(.background)
                     .cornerRadius(12)
+                    .shadow(radius: 10)
         }
         .padding([.bottom], 20)
             , alignment: .bottom)
@@ -222,5 +268,7 @@ extension AnyTransition {
 }
 
 #Preview {
-    FeedView(httpModule: .constant(HTTPModule(settings: .constant(AppSettings(apiURL: "https://skilllinkr.micstudios.de/api", userToken: "")), appDataModule: AppDataModule(settings: .constant(AppSettings(apiURL: "https://skilllinkr.micstudios.de/api", user: User(id: "", firstname: "", lastname: "", mail: "", released: false, role: UserRole(id: 0, name: "", description: "", createdAt: "", updatedAt: ""), updatedAt: "", createdAt: "")))))), settings: .constant(AppSettings(apiURL: "https://skilllinkr.micstudios.de/api", user: User(id: "", firstname: "", lastname: "", mail: "", released: false, role: UserRole(id: 0, name: "", description: "", createdAt: "", updatedAt: ""), updatedAt: "", createdAt: ""))))
+    NavigationStack {
+        FeedView(httpModule: .constant(HTTPModule(settings: .constant(AppSettings(apiURL: "https://skilllinkr.micstudios.de/api", userToken: "")), appDataModule: AppDataModule(settings: .constant(AppSettings(apiURL: "https://skilllinkr.micstudios.de/api", user: User(id: "", firstname: "", lastname: "", mail: "", released: false, role: UserRole(id: 0, name: "", description: "", createdAt: "", updatedAt: ""), updatedAt: "", createdAt: "")))))), settings: .constant(AppSettings(apiURL: "https://skilllinkr.micstudios.de/api", user: User(id: "", firstname: "", lastname: "", mail: "", released: false, role: UserRole(id: 0, name: "", description: "", createdAt: "", updatedAt: ""), updatedAt: "", createdAt: ""))))
+    }
 }
