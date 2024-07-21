@@ -113,3 +113,43 @@ struct AnyError: Error {
         self.error = error
     }
 }
+
+struct SkillCategory: Codable, Equatable {
+    var id: Int
+    var name: String
+    var createdAt: String //Date
+    var updatedAt: String //Date
+}
+
+struct GetSkillCategoriesResponse: Codable, Equatable {
+    var status: String
+    var message: [SkillCategory]
+}
+
+struct Skill: Codable, Equatable {
+    var id: Int
+    var name: String
+    var createdAt: String
+    var updatedAt: String
+    var skillCategoryId: Int
+}
+
+struct GetSkillResponse: Codable, Equatable {
+    var status: String
+    var message: Skill
+}
+
+struct GetSkillsResponse: Codable, Equatable {
+    var status: String
+    var message: [Skill]
+}
+
+struct GetSkillCategoryResponse: Codable, Equatable {
+    var status: String
+    var message: SkillCategory
+}
+
+struct GetSkillTeachersResponse: Codable, Equatable {
+    var status: String
+    var message: [User]
+}

@@ -52,7 +52,9 @@ class HTTPModule: ObservableObject {
                     let loginResponse = try JSONDecoder().decode(LoginResponse.self, from: data)
                     DispatchQueue.main.async {
                         self.settings.userToken = loginResponse.message.token
-                        self.appDataModule.save()
+                        Task {
+                            await self.appDataModule.save()
+                        }
                     }
                     completion(.success(loginResponse))
                 } catch let decodeError {
@@ -113,7 +115,9 @@ class HTTPModule: ObservableObject {
                     let registerResponse = try JSONDecoder().decode(RegisterResponse.self, from: data)
                     DispatchQueue.main.async {
                         self.settings.userToken = registerResponse.message.token
-                        self.appDataModule.save()
+                        Task {
+                            await self.appDataModule.save()
+                        }
                     }
                     completion(.success(registerResponse))
                 } catch let decodeError {
@@ -136,7 +140,7 @@ class HTTPModule: ObservableObject {
         task.resume()
     }
     
-    func getUser(completion: @escaping (Result<UserResponse, Error>) -> Void) {
+    func getUser(_ user: User, completion: @escaping (Result<UserResponse, Error>) -> Void) {
         guard let token = settings.userToken else {
             let error = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Missing token"])
             completion(.failure(error))
@@ -190,7 +194,7 @@ class HTTPModule: ObservableObject {
         task.resume()
     }
     
-    func patchUser(token: String, patchUserId: String, mail: String? = nil, firstname: String? = nil, lastname: String? = nil, password: String? = nil, roleId: Int? = nil, released: Bool? = nil, completion: @escaping (Result<PatchUserResponse, Error>) -> Void) {
+    func patchUser(token: String, patchUserId: String, firstname: String? = nil, lastname: String? = nil, password: String? = nil, completion: @escaping (Result<PatchUserResponse, Error>) -> Void) {
         let url = URL(string: "\(settings.apiURL)/user")!
         var request = URLRequest(url: url)
         request.httpMethod = "PATCH"
@@ -200,10 +204,6 @@ class HTTPModule: ObservableObject {
         var parameters: [String: Any] = [
             "patchUserId": patchUserId
         ]
-        
-        if let mail = mail {
-            parameters["mail"] = mail
-        }
         
         if let firstname = firstname {
             parameters["firstname"] = firstname
@@ -215,14 +215,6 @@ class HTTPModule: ObservableObject {
         
         if let password = password {
             parameters["password"] = password
-        }
-        
-        if let roleId = roleId {
-            parameters["roleId"] = roleId
-        }
-        
-        if let released = released {
-            parameters["released"] = released
         }
         
         do {
@@ -605,12 +597,8 @@ class HTTPModule: ObservableObject {
             }
         }.resume()
     }
-}
-
-extension Data {
-    mutating func append(_ string: String) {
-        if let data = string.data(using: .utf8) {
-            append(data)
-        }
+    
+    func getImageURL(owner: User, key: String) -> URL {
+        return URL(string: "\($settings.dataURL.wrappedValue)/uploads/\(owner.id)_\(key).jpg")!
     }
 }

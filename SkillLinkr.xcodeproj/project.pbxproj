@@ -7,7 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		6F2A4BB32C4D32DC00D290E2 /* CachedAsyncImage in Frameworks */ = {isa = PBXBuildFile; productRef = 6F2A4BB22C4D32DC00D290E2 /* CachedAsyncImage */; };
+		6F2A4BB82C4D3EFE00D290E2 /* CachedAsyncImage in Frameworks */ = {isa = PBXBuildFile; productRef = 6F2A4BB72C4D3EFE00D290E2 /* CachedAsyncImage */; };
+		6F2A4BBB2C4D475E00D290E2 /* AllExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F2A4BBA2C4D475E00D290E2 /* AllExtensions.swift */; };
 		6F3AEEC82C4442D600B4566A /* Onboarding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F3AEEC72C4442D600B4566A /* Onboarding.swift */; };
 		6F3AEECA2C447BA100B4566A /* Profile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F3AEEC92C447BA100B4566A /* Profile.swift */; };
 		6F3AEECC2C447BF300B4566A /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F3AEECB2C447BF300B4566A /* Settings.swift */; };
@@ -43,6 +44,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		6F2A4BBA2C4D475E00D290E2 /* AllExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AllExtensions.swift; sourceTree = "<group>"; };
 		6F3AEEC72C4442D600B4566A /* Onboarding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Onboarding.swift; sourceTree = "<group>"; };
 		6F3AEEC92C447BA100B4566A /* Profile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Profile.swift; sourceTree = "<group>"; };
 		6F3AEECB2C447BF300B4566A /* Settings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Settings.swift; sourceTree = "<group>"; };
@@ -69,7 +71,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6F2A4BB32C4D32DC00D290E2 /* CachedAsyncImage in Frameworks */,
+				6F2A4BB82C4D3EFE00D290E2 /* CachedAsyncImage in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -95,6 +97,14 @@
 			children = (
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		6F2A4BB92C4D474E00D290E2 /* extensions */ = {
+			isa = PBXGroup;
+			children = (
+				6F2A4BBA2C4D475E00D290E2 /* AllExtensions.swift */,
+			);
+			path = extensions;
 			sourceTree = "<group>";
 		};
 		6F3AEEC62C4442AE00B4566A /* views */ = {
@@ -134,6 +144,7 @@
 		6FF92F0A2C42857B00B31E65 /* SkillLinkr */ = {
 			isa = PBXGroup;
 			children = (
+				6F2A4BB92C4D474E00D290E2 /* extensions */,
 				6F3AEEC62C4442AE00B4566A /* views */,
 				6FF92F362C42900E00B31E65 /* networking */,
 				6FF92F0B2C42857B00B31E65 /* SkillLinkrApp.swift */,
@@ -204,7 +215,7 @@
 			);
 			name = SkillLinkr;
 			packageProductDependencies = (
-				6F2A4BB22C4D32DC00D290E2 /* CachedAsyncImage */,
+				6F2A4BB72C4D3EFE00D290E2 /* CachedAsyncImage */,
 			);
 			productName = SkillLinkr;
 			productReference = 6FF92F082C42857B00B31E65 /* SkillLinkr.app */;
@@ -279,7 +290,7 @@
 			);
 			mainGroup = 6FF92EFF2C42857B00B31E65;
 			packageReferences = (
-				6F50040D2C4D319800952BD7 /* XCRemoteSwiftPackageReference "swiftui-cached-async-image" */,
+				6F2A4BB62C4D3EFE00D290E2 /* XCRemoteSwiftPackageReference "swiftui-cached-async-image" */,
 			);
 			productRefGroup = 6FF92F092C42857B00B31E65 /* Products */;
 			projectDirPath = "";
@@ -328,6 +339,7 @@
 				6FF92F0E2C42857B00B31E65 /* MainView.swift in Sources */,
 				6F3AEECC2C447BF300B4566A /* Settings.swift in Sources */,
 				6FF92F3D2C4439A200B31E65 /* appData.swift in Sources */,
+				6F2A4BBB2C4D475E00D290E2 /* AllExtensions.swift in Sources */,
 				6FF92F3B2C42905200B31E65 /* jsonData.swift in Sources */,
 				6FF92F0C2C42857B00B31E65 /* SkillLinkrApp.swift in Sources */,
 				6F3AEEC82C4442D600B4566A /* Onboarding.swift in Sources */,
@@ -697,7 +709,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		6F50040D2C4D319800952BD7 /* XCRemoteSwiftPackageReference "swiftui-cached-async-image" */ = {
+		6F2A4BB62C4D3EFE00D290E2 /* XCRemoteSwiftPackageReference "swiftui-cached-async-image" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/lorenzofiamingo/swiftui-cached-async-image";
 			requirement = {
@@ -708,9 +720,9 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		6F2A4BB22C4D32DC00D290E2 /* CachedAsyncImage */ = {
+		6F2A4BB72C4D3EFE00D290E2 /* CachedAsyncImage */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 6F50040D2C4D319800952BD7 /* XCRemoteSwiftPackageReference "swiftui-cached-async-image" */;
+			package = 6F2A4BB62C4D3EFE00D290E2 /* XCRemoteSwiftPackageReference "swiftui-cached-async-image" */;
 			productName = CachedAsyncImage;
 		};
 /* End XCSwiftPackageProductDependency section */

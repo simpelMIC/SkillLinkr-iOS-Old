@@ -8,7 +8,6 @@
 import Foundation
 import SwiftUI
 
-
 enum SwipeState {
     case left
     case non
@@ -297,20 +296,6 @@ struct CardView: View, Identifiable {
     }
 }
 
-extension AnyTransition {
-    static var trailingBottom: AnyTransition {
-        AnyTransition.asymmetric(insertion: .identity, removal: AnyTransition.move(edge: .trailing).combined(with: .move(edge: .bottom)))
-    }
-    
-    static var leadingBottom: AnyTransition {
-        AnyTransition.asymmetric(insertion: .identity, removal: AnyTransition.move(edge: .leading).combined(with: .move(edge: .bottom)))
-    }
-    
-    static var middleBottom: AnyTransition {
-        AnyTransition.asymmetric(insertion: .identity, removal: AnyTransition.move(edge: .bottom).combined(with: .move(edge: .bottom)))
-    }
-}
-
 struct ActionButtonView: View {
     enum ActionButtonLabel {
         case dislike
@@ -373,6 +358,6 @@ struct ActionButtonView: View {
 
 #Preview {
     NavigationStack {
-        FeedView(httpModule: .constant(HTTPModule(settings: .constant(AppData(apiURL: "", dataURL: "https://images.skilllinkr.micstudios.de/upload", appSettings: AppSettings())), appDataModule: AppDataModule(appData: .constant(AppData(apiURL: "", dataURL: "https://images.skilllinkr.micstudios.de/upload", appSettings: AppSettings()))))), appData: .constant(AppData(apiURL: "", dataURL: "https://images.skilllinkr.micstudios.de/upload", user: User(id: "", firstname: "Thorsten", lastname: "Schmidt", mail: "", released: true, role: UserRole(id: 0, name: "", description: "", createdAt: "", updatedAt: ""), updatedAt: "", createdAt: ""), appSettings: AppSettings())))
+        FeedView(httpModule: .constant(HTTPModule(settings: .constant(AppData(apiURL: "", dataURL: "https://images.skilllinkr.micstudios.de", appSettings: AppSettings())), appDataModule: AppDataModule(appData: .constant(AppData(apiURL: "", dataURL: "https://images.skilllinkr.micstudios.de", appSettings: AppSettings()))))), appData: .constant(AppData(apiURL: "", dataURL: "https://images.skilllinkr.micstudios.de", user: User(id: "", firstname: "Thorsten", lastname: "Schmidt", mail: "", released: true, role: UserRole(id: 0, name: "", description: "", createdAt: "", updatedAt: ""), updatedAt: "", createdAt: ""), appSettings: AppSettings())))
     }
 }

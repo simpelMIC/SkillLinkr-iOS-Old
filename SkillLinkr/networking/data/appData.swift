@@ -18,6 +18,7 @@ struct AppData: Codable, Equatable {
 
 struct AppSettings: Codable, Equatable {
     var showFeedActionButtons: Bool?
+    var profileImageCache: Data?
 }
 
 class AppDataModule {
@@ -27,22 +28,22 @@ class AppDataModule {
         self._appData = appData
     }
     
-    func save() {
+    func save() async {
         let defaults = UserDefaults.standard
-        defaults.set(AppDataJSONModule().encode($appData.wrappedValue), forKey: "SkilllinkrAppData")
+        await defaults.set(AppDataJSONModule().encode($appData.wrappedValue), forKey: "SkilllinkrAppData")
         print("Saved AppData")
     }
     
-    func load() {
+    func load() async {
         let defaults = UserDefaults.standard
-        let appData = AppDataJSONModule().decode(defaults.string(forKey: "SkilllinkrAppData") ?? "")
-        self.appData = appData ?? AppData(apiURL: "https://skilllinkr.micstudios.de/api", dataURL: "https://images.skilllinkr.micstudios.de/upload", appSettings: AppSettings())
+        let appData = await AppDataJSONModule().decode(defaults.string(forKey: "SkilllinkrAppData") ?? "")
+        self.appData = appData ?? AppData(apiURL: "https://skilllinkr.micstudios.de/api", dataURL: "https://images.skilllinkr.micstudios.de", appSettings: AppSettings())
     }
 }
 
 class AppDataJSONModule {
     // Method to encode client data to JSON string
-    func encode(_ data: AppData) -> String? {
+    func encode(_ data: AppData) async -> String? {
         let encoder = JSONEncoder()
         // Attempt to encode client data to JSON
         if let json = try? encoder.encode(data) {
@@ -56,7 +57,7 @@ class AppDataJSONModule {
     }
     
     // Method to decode JSON string to client data
-    func decode(_ string: String) -> AppData? {
+    func decode(_ string: String) async -> AppData? {
         // Convert JSON string to data
         guard let data = string.data(using: .utf8) else {
             // Print error message if conversion fails

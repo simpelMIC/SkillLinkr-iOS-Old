@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftUI
+import CachedAsyncImage
 import PhotosUI
 
 struct PatchProfileView: View {
@@ -28,14 +29,64 @@ struct PatchProfileView: View {
     var body: some View {
         NavigationStack {
             List {
-                PhotosPicker("Profile Image", selection: $selectedItem)
-                    .onChange(of: selectedItem) {
-                        Task {
-                            if let data = try? await selectedItem?.loadTransferable(type: Data.self) {
-                                selectedImageData = data
+                HStack {
+                    if selectedImageData == nil {
+                        CachedAsyncImage(url: httpModule.getImageURL(owner: localUser, key: "profileImage")) { result in
+                            if result.image == nil {
+                                Image("userIcon")
+                                    .renderingMode(.original)
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                                    .frame(width: 140, height: 140)
+                                    .clipped()
+                                    .mask {
+                                        Circle()
+                                    }
+                                    .overlay {
+                                        Circle()
+                                            .stroke(.primary, lineWidth: 1)
+                                    }
+                            } else {
+                                result.image?
+                                    .renderingMode(.original)
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                                    .frame(width: 140, height: 140)
+                                    .clipped()
+                                    .mask {
+                                        Circle()
+                                    }
+                                    .overlay {
+                                        Circle()
+                                            .stroke(.primary, lineWidth: 1)
+                                    }
                             }
                         }
+                    } else {
+                        Image(uiImage: UIImage(data: selectedImageData!)!)
+                            .renderingMode(.original)
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: 140, height: 140)
+                            .clipped()
+                            .mask {
+                                Circle()
+                            }
+                            .overlay {
+                                Circle()
+                                    .stroke(.primary, lineWidth: 1)
+                            }
                     }
+                    PhotosPicker("Edit Profile Image", selection: $selectedItem, matching: .images)
+                        .onChange(of: selectedItem) {
+                            Task {
+                                if let data = try? await selectedItem?.loadTransferable(type: Data.self) {
+                                    selectedImageData = data
+                                }
+                            }
+                        }
+                        .padding()
+                }
                 TextField("Firstname", text: $localUser.firstname)
                 TextField("Lastname", text: $localUser.lastname)
             }
@@ -49,7 +100,7 @@ struct PatchProfileView: View {
             .navigationBarTitleDisplayMode(navigationBarTitleMode == .inline ? .inline : .large)
         }
         .onAppear {
-            localUser = $appData.user.wrappedValue ?? User(id: "", firstname: "", lastname: "", mail: "", released: false, role: UserRole(id: 0, name: "", description: "", createdAt: "", updatedAt: ""), updatedAt: "", createdAt: "")
+            getUser()
         }
         .onDisappear {
             localUser = User(id: "", firstname: "", lastname: "", mail: "", released: false, role: UserRole(id: 0, name: "", description: "", createdAt: "", updatedAt: ""), updatedAt: "", createdAt: "")
@@ -61,7 +112,6 @@ struct PatchProfileView: View {
         httpModule.patchUser(
             token: $appData.userToken.wrappedValue ?? "",
             patchUserId: $localUser.id.wrappedValue,
-            mail: $localUser.mail.wrappedValue,
             firstname: $localUser.firstname.wrappedValue,
             lastname: $localUser.lastname.wrappedValue
         ) { result in
@@ -91,11 +141,12 @@ struct PatchProfileView: View {
     }
     
     func getUser() {
-        httpModule.getUser { result in
+        httpModule.getUser(appData.user ?? User(id: "", firstname: "", lastname: "", mail: "", released: false, role: UserRole(id: 0, name: "", description: "", createdAt: "", updatedAt: ""), updatedAt: "", createdAt: "")) { result in
             switch result {
             case .success(let userResponse):
                 print("User details fetched successfully!")
                 appData.user = User(id: userResponse.message.id, firstname: userResponse.message.firstname, lastname: userResponse.message.lastname, mail: userResponse.message.mail, released: userResponse.message.released, role: userResponse.message.role, updatedAt: userResponse.message.updatedAt, createdAt: userResponse.message.createdAt)
+                localUser = User(id: userResponse.message.id, firstname: userResponse.message.firstname, lastname: userResponse.message.lastname, mail: userResponse.message.mail, released: userResponse.message.released, role: userResponse.message.role, updatedAt: userResponse.message.updatedAt, createdAt: userResponse.message.createdAt)
             case .failure(let error):
                 print("Failed to fetch user details: \(error.localizedDescription)")
             }
@@ -105,7 +156,7 @@ struct PatchProfileView: View {
 
 #Preview {
     NavigationStack {
-        PatchProfileView(httpModule: .constant(HTTPModule(settings: .constant(AppData(apiURL: "", dataURL: "https://images.skilllinkr.micstudios.de/upload", appSettings: AppSettings())), appDataModule: AppDataModule(appData: .constant(AppData(apiURL: "", dataURL: "https://images.skilllinkr.micstudios.de/upload", appSettings: AppSettings()))))), appData: .constant(AppData(apiURL: "", dataURL: "https://images.skilllinkr.micstudios.de/upload", user: User(id: "", firstname: "Thorsten", lastname: "Schmidt", mail: "", released: true, role: UserRole(id: 0, name: "", description: "", createdAt: "", updatedAt: ""), updatedAt: "", createdAt: ""), appSettings: AppSettings())), navigationBarTitleMode: .large) {
+        PatchProfileView(httpModule: .constant(HTTPModule(settings: .constant(AppData(apiURL: "", dataURL: "https://images.skilllinkr.micstudios.de", appSettings: AppSettings())), appDataModule: AppDataModule(appData: .constant(AppData(apiURL: "", dataURL: "https://images.skilllinkr.micstudios.de", appSettings: AppSettings()))))), appData: .constant(AppData(apiURL: "", dataURL: "https://images.skilllinkr.micstudios.de", user: User(id: "", firstname: "Thorsten", lastname: "Schmidt", mail: "", released: true, role: UserRole(id: 0, name: "", description: "", createdAt: "", updatedAt: ""), updatedAt: "", createdAt: ""), appSettings: AppSettings())), navigationBarTitleMode: .large) {
         }
     }
 }
