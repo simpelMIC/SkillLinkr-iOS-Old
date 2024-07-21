@@ -14,11 +14,25 @@ struct AppData: Codable, Equatable {
     var userToken: String?
     var user: User?
     var appSettings: AppSettings
+    var cache: AppCache
 }
 
 struct AppSettings: Codable, Equatable {
     var showFeedActionButtons: Bool?
     var profileImageCache: Data?
+}
+
+struct AppCache: Codable, Equatable {
+    var skills: [Skill]?
+    var skillCategories: [SkillCategory]?
+    var users: [User]?
+    var cachedImages: [CachedImage]?
+}
+
+struct CachedImage: Codable, Equatable {
+    var owner: String //UserId
+    var key: String
+    var data: Data
 }
 
 class AppDataModule {
@@ -37,7 +51,7 @@ class AppDataModule {
     func load() async {
         let defaults = UserDefaults.standard
         let appData = await AppDataJSONModule().decode(defaults.string(forKey: "SkilllinkrAppData") ?? "")
-        self.appData = appData ?? AppData(apiURL: "https://skilllinkr.micstudios.de/api", dataURL: "https://images.skilllinkr.micstudios.de", appSettings: AppSettings())
+        self.appData = appData ?? AppData(apiURL: "https://skilllinkr.micstudios.de/api", dataURL: "https://images.skilllinkr.micstudios.de", appSettings: AppSettings(), cache: AppCache())
     }
 }
 
@@ -72,7 +86,7 @@ class AppDataJSONModule {
             return packetData
         } catch {
             // Print error message if decoding fails
-            print("Error decoding ClientData: \(error)")
+            print("Error decoding AppData: \(error)")
             return nil
         }
     }

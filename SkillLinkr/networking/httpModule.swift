@@ -563,6 +563,275 @@ class HTTPModule: ObservableObject {
         task.resume()
     }
     
+    func getSkillCategories(completion: @escaping (Result<GetSkillCategoriesResponse, Error>) -> Void) {
+        guard let token = settings.userToken else {
+            let error = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Missing token"])
+            completion(.failure(error))
+            return
+        }
+        
+        let url = URL(string: "\(settings.apiURL)/skillcategories")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("JWT \(token)", forHTTPHeaderField: "Authorization")
+        
+        let task = URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                completion(.failure(error))
+                return
+            }
+            
+            guard let data = data, let httpResponse = response as? HTTPURLResponse else {
+                let error = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Invalid response"])
+                completion(.failure(error))
+                return
+            }
+            
+            if httpResponse.statusCode == 200 {
+                do {
+                    let response = try JSONDecoder().decode(GetSkillCategoriesResponse.self, from: data)
+                    completion(.success(response))
+                } catch let decodeError {
+                    let responseString = String(data: data, encoding: .utf8) ?? "Unable to parse response"
+                    let error = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Failed to decode response: \(decodeError). Response: \(responseString)"])
+                    completion(.failure(error))
+                }
+            } else if httpResponse.statusCode == 400 {
+                do {
+                    let errorResponse = try JSONDecoder().decode(ErrorResponse.self, from: data)
+                    let error = NSError(domain: "", code: 400, userInfo: [NSLocalizedDescriptionKey: errorResponse.message])
+                    completion(.failure(error))
+                } catch let decodeError {
+                    let responseString = String(data: data, encoding: .utf8) ?? "Unable to parse response"
+                    let error = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Failed to decode error response: \(decodeError). Response: \(responseString)"])
+                    completion(.failure(error))
+                }
+            } else {
+                let responseString = String(data: data, encoding: .utf8) ?? "Unable to parse response"
+                let error = NSError(domain: "", code: httpResponse.statusCode, userInfo: [NSLocalizedDescriptionKey: "Unexpected response status code: \(httpResponse.statusCode). Response: \(responseString)"])
+                completion(.failure(error))
+            }
+        }
+        
+        task.resume()
+    }
+    
+    func getSkillCategory(_ id: Int, completion: @escaping (Result<GetSkillCategoryResponse, Error>) -> Void) {
+        guard let token = settings.userToken else {
+            let error = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Missing token"])
+            completion(.failure(error))
+            return
+        }
+        
+        let url = URL(string: "\(settings.apiURL)/skillcategory/\(String(id))")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("JWT \(token)", forHTTPHeaderField: "Authorization")
+        
+        let task = URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                completion(.failure(error))
+                return
+            }
+            
+            guard let data = data, let httpResponse = response as? HTTPURLResponse else {
+                let error = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Invalid response"])
+                completion(.failure(error))
+                return
+            }
+            
+            if httpResponse.statusCode == 200 {
+                do {
+                    let response = try JSONDecoder().decode(GetSkillCategoryResponse.self, from: data)
+                    completion(.success(response))
+                } catch let decodeError {
+                    let responseString = String(data: data, encoding: .utf8) ?? "Unable to parse response"
+                    let error = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Failed to decode response: \(decodeError). Response: \(responseString)"])
+                    completion(.failure(error))
+                }
+            } else if httpResponse.statusCode == 400 {
+                do {
+                    let errorResponse = try JSONDecoder().decode(ErrorResponse.self, from: data)
+                    let error = NSError(domain: "", code: 400, userInfo: [NSLocalizedDescriptionKey: errorResponse.message])
+                    completion(.failure(error))
+                } catch let decodeError {
+                    let responseString = String(data: data, encoding: .utf8) ?? "Unable to parse response"
+                    let error = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Failed to decode error response: \(decodeError). Response: \(responseString)"])
+                    completion(.failure(error))
+                }
+            } else {
+                let responseString = String(data: data, encoding: .utf8) ?? "Unable to parse response"
+                let error = NSError(domain: "", code: httpResponse.statusCode, userInfo: [NSLocalizedDescriptionKey: "Unexpected response status code: \(httpResponse.statusCode). Response: \(responseString)"])
+                completion(.failure(error))
+            }
+        }
+        
+        task.resume()
+    }
+    
+    func getSkills(_ id: Int, completion: @escaping (Result<GetSkillsResponse, Error>) -> Void) {
+        guard let token = settings.userToken else {
+            let error = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Missing token"])
+            completion(.failure(error))
+            return
+        }
+        
+        let url = URL(string: "\(settings.apiURL)/skills/\(String(id))")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("JWT \(token)", forHTTPHeaderField: "Authorization")
+        
+        let task = URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                completion(.failure(error))
+                return
+            }
+            
+            guard let data = data, let httpResponse = response as? HTTPURLResponse else {
+                let error = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Invalid response"])
+                completion(.failure(error))
+                return
+            }
+            
+            if httpResponse.statusCode == 200 {
+                do {
+                    let response = try JSONDecoder().decode(GetSkillsResponse.self, from: data)
+                    completion(.success(response))
+                } catch let decodeError {
+                    let responseString = String(data: data, encoding: .utf8) ?? "Unable to parse response"
+                    let error = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Failed to decode response: \(decodeError). Response: \(responseString)"])
+                    completion(.failure(error))
+                }
+            } else if httpResponse.statusCode == 400 {
+                do {
+                    let errorResponse = try JSONDecoder().decode(ErrorResponse.self, from: data)
+                    let error = NSError(domain: "", code: 400, userInfo: [NSLocalizedDescriptionKey: errorResponse.message])
+                    completion(.failure(error))
+                } catch let decodeError {
+                    let responseString = String(data: data, encoding: .utf8) ?? "Unable to parse response"
+                    let error = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Failed to decode error response: \(decodeError). Response: \(responseString)"])
+                    completion(.failure(error))
+                }
+            } else {
+                let responseString = String(data: data, encoding: .utf8) ?? "Unable to parse response"
+                let error = NSError(domain: "", code: httpResponse.statusCode, userInfo: [NSLocalizedDescriptionKey: "Unexpected response status code: \(httpResponse.statusCode). Response: \(responseString)"])
+                completion(.failure(error))
+            }
+        }
+        task.resume()
+    }
+    
+    func getSkill(_ id: Int, completion: @escaping (Result<GetSkillResponse, Error>) -> Void) {
+        guard let token = settings.userToken else {
+            let error = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Missing token"])
+            completion(.failure(error))
+            return
+        }
+        
+        let url = URL(string: "\(settings.apiURL)/skill/specific/\(String(id))")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("JWT \(token)", forHTTPHeaderField: "Authorization")
+        
+        let task = URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                completion(.failure(error))
+                return
+            }
+            
+            guard let data = data, let httpResponse = response as? HTTPURLResponse else {
+                let error = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Invalid response"])
+                completion(.failure(error))
+                return
+            }
+            
+            if httpResponse.statusCode == 200 {
+                do {
+                    let response = try JSONDecoder().decode(GetSkillResponse.self, from: data)
+                    completion(.success(response))
+                } catch let decodeError {
+                    let responseString = String(data: data, encoding: .utf8) ?? "Unable to parse response"
+                    let error = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Failed to decode response: \(decodeError). Response: \(responseString)"])
+                    completion(.failure(error))
+                }
+            } else if httpResponse.statusCode == 400 {
+                do {
+                    let errorResponse = try JSONDecoder().decode(ErrorResponse.self, from: data)
+                    let error = NSError(domain: "", code: 400, userInfo: [NSLocalizedDescriptionKey: errorResponse.message])
+                    completion(.failure(error))
+                } catch let decodeError {
+                    let responseString = String(data: data, encoding: .utf8) ?? "Unable to parse response"
+                    let error = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Failed to decode error response: \(decodeError). Response: \(responseString)"])
+                    completion(.failure(error))
+                }
+            } else {
+                let responseString = String(data: data, encoding: .utf8) ?? "Unable to parse response"
+                let error = NSError(domain: "", code: httpResponse.statusCode, userInfo: [NSLocalizedDescriptionKey: "Unexpected response status code: \(httpResponse.statusCode). Response: \(responseString)"])
+                completion(.failure(error))
+            }
+        }
+        
+        task.resume()
+    }
+    
+    func getSkillTeachers(_ id: Int, completion: @escaping (Result<GetSkillTeachersResponse, Error>) -> Void) {
+        guard let token = settings.userToken else {
+            let error = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Missing token"])
+            completion(.failure(error))
+            return
+        }
+        
+        let url = URL(string: "\(settings.apiURL)/skill/teachers/\(String(id))")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("JWT \(token)", forHTTPHeaderField: "Authorization")
+        
+        let task = URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                completion(.failure(error))
+                return
+            }
+            
+            guard let data = data, let httpResponse = response as? HTTPURLResponse else {
+                let error = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Invalid response"])
+                completion(.failure(error))
+                return
+            }
+            
+            if httpResponse.statusCode == 200 {
+                do {
+                    let response = try JSONDecoder().decode(GetSkillTeachersResponse.self, from: data)
+                    completion(.success(response))
+                } catch let decodeError {
+                    let responseString = String(data: data, encoding: .utf8) ?? "Unable to parse response"
+                    let error = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Failed to decode response: \(decodeError). Response: \(responseString)"])
+                    completion(.failure(error))
+                }
+            } else if httpResponse.statusCode == 400 {
+                do {
+                    let errorResponse = try JSONDecoder().decode(ErrorResponse.self, from: data)
+                    let error = NSError(domain: "", code: 400, userInfo: [NSLocalizedDescriptionKey: errorResponse.message])
+                    completion(.failure(error))
+                } catch let decodeError {
+                    let responseString = String(data: data, encoding: .utf8) ?? "Unable to parse response"
+                    let error = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Failed to decode error response: \(decodeError). Response: \(responseString)"])
+                    completion(.failure(error))
+                }
+            } else {
+                let responseString = String(data: data, encoding: .utf8) ?? "Unable to parse response"
+                let error = NSError(domain: "", code: httpResponse.statusCode, userInfo: [NSLocalizedDescriptionKey: "Unexpected response status code: \(httpResponse.statusCode). Response: \(responseString)"])
+                completion(.failure(error))
+            }
+        }
+        
+        task.resume()
+    }
+    
     
     
     //IMAGE HANDLER
