@@ -12,7 +12,7 @@ struct ZD2Data: Codable, Equatable {
     var settings: ZD2Settings
     var appUser: AppUser
     var cache: ZD2Cache
-    var zd1Data: AppData
+    var zd1Data: AppData?
 }
 
 struct ZD2User: Codable, Equatable {
@@ -64,7 +64,7 @@ class ZD2DataUserDefaultsModule {
     
     func load() async -> ZD2Data? {
         let defaults = UserDefaults.standard
-        let zd2Data = await ZD2DataJSONModule().decode(defaults.string(forKey: "SkilllinkrAppData") ?? "")
+        let zd2Data = await ZD2DataJSONModule().decode(defaults.string(forKey: "SkilllinkrZD2Data") ?? "")
         return zd2Data
     }
 }

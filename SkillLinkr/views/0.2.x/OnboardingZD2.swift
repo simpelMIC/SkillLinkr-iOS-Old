@@ -16,3 +16,39 @@ struct OnboardingZD2: View {
         }
     }
 }
+
+struct ZD2LoginView: View {
+    @Binding var zd2Data: ZD2Data
+    var body: some View {
+        Text("Login")
+    }
+}
+
+struct ZD2NewAccountView: View {
+    @Binding var zd2Data: ZD2Data
+    var body: some View {
+        Text("New Account")
+    }
+}
+
+struct FailedLoginView: View {
+    @Binding var zd2Data: ZD2Data
+    var body: some View {
+        VStack {
+            Text("Login failed.")
+                .font(.largeTitle)
+                .foregroundStyle(.accent)
+            HStack {
+                Button("Log Out") {
+                    zd2Data.appUser.loggedIn = false
+                }
+                .buttonStyle(.borderedProminent)
+                .padding()
+                Button("Retry") {
+                    HTTPModule()
+                }
+                .padding()
+            }
+        }
+    }
+}

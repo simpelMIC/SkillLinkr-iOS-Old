@@ -8,7 +8,10 @@
 import SwiftUI
 
 struct MainView: View {
+    //One of many default ZD1Data
     @State var appData: AppData = AppData(apiURL: "https://skilllinkr.micstudios.de/api", dataURL: "https://images.skilllinkr.micstudios.de", appSettings: AppSettings(), cache: AppCache())
+    //Default ZD2Data
+    @State var zd2Data: ZD2Data = ZD2Data(settings: ZD2Settings(apiURL: URL(string: "https://skilllinkr.micstudios.de/api")!, showFeedActionButtons: false), appUser: AppUser(userToken: "", loggedIn: false, verifiedLogIn: false, user: ZD2User(user: User(id: "", firstname: "", lastname: "", mail: "", released: false, role: UserRole(id: 0, name: "", description: "", createdAt: "", updatedAt: ""), updatedAt: "", createdAt: ""), socialmedia: Socialmedia(id: 0, userId: "", updatedAt: "", createdAt: ""), teachingInformation: Teachinginformation(id: 0, userId: "", teachesInPerson: false, teachesOnline: false, updatedAt: "", createdAt: ""))), cache: ZD2Cache(users: [], skillCategories: [], skills: []))
     var body: some View {
         if appData.appSettings.layoutVersion == .zD1 {
             ContentView(httpModule: HTTPModule(settings: $appData, appDataModule: AppDataModule(appData: $appData)), appData: $appData)
@@ -21,15 +24,27 @@ struct MainView: View {
                     }
                 }
         } else if appData.appSettings.layoutVersion == .zD2 {
-            ZD2Management()
+            ZD2Management(zd2Data: $zd2Data)
+                .task {
+                    ZD2DataModule().load { data in
+                        //Set ZD2Data to (from UserDefaults) loaded data
+                        //Fallback default Data is loaded if an error occurs
+                        zd2Data = data ?? zd2Data
+                    }
+                }
+                .onDisappear {
+                    ZD2DataModule().save($zd2Data.wrappedValue)
+                }
         } else {
-            ChooseLayoutVersionView(appData: $appData)
+            ChooseLayoutVersionView(appData: $appData, zd2Data: $zd2Data)
         }
     }
 }
 
+//ZD1
 struct ChooseLayoutVersionView: View {
     @Binding var appData: AppData
+    @Binding var zd2Data: ZD2Data
     var body: some View {
         Text("Choose a Layout Version")
             .font(.largeTitle)
@@ -37,16 +52,20 @@ struct ChooseLayoutVersionView: View {
         HStack {
             Button("ZD1") {
                 appData.appSettings.layoutVersion = .zD1
+                zd2Data.zd1Data?.appSettings.layoutVersion = .zD1
                 Task {
                     await AppDataModule(appData: $appData).save()
                 }
+                ZD2DataModule().save($zd2Data.wrappedValue)
             }
             .padding()
             Button("ZD2") {
                 appData.appSettings.layoutVersion = .zD2
+                zd2Data.zd1Data?.appSettings.layoutVersion = .zD2
                 Task {
                     await AppDataModule(appData: $appData).save()
                 }
+                ZD2DataModule().save($zd2Data.wrappedValue)
             }
             .padding()
         }
