@@ -10,15 +10,46 @@ import SwiftUI
 struct MainView: View {
     @State var appData: AppData = AppData(apiURL: "https://skilllinkr.micstudios.de/api", dataURL: "https://images.skilllinkr.micstudios.de", appSettings: AppSettings(), cache: AppCache())
     var body: some View {
-        ContentView(httpModule: HTTPModule(settings: $appData, appDataModule: AppDataModule(appData: $appData)), appData: $appData)
-            .task {
-                await AppDataModule(appData: $appData).load()
-            }
-            .onDisappear {
+        if appData.appSettings.layoutVersion == .zD1 {
+            ContentView(httpModule: HTTPModule(settings: $appData, appDataModule: AppDataModule(appData: $appData)), appData: $appData)
+                .task {
+                    await AppDataModule(appData: $appData).load()
+                }
+                .onDisappear {
+                    Task {
+                        await AppDataModule(appData: $appData).save()
+                    }
+                }
+        } else if appData.appSettings.layoutVersion == .zD2 {
+            ZD2Management()
+        } else {
+            ChooseLayoutVersionView(appData: $appData)
+        }
+    }
+}
+
+struct ChooseLayoutVersionView: View {
+    @Binding var appData: AppData
+    var body: some View {
+        Text("Choose a Layout Version")
+            .font(.largeTitle)
+            .foregroundStyle(.accent)
+        HStack {
+            Button("ZD1") {
+                appData.appSettings.layoutVersion = .zD1
                 Task {
                     await AppDataModule(appData: $appData).save()
                 }
             }
+            .padding()
+            Button("ZD2") {
+                appData.appSettings.layoutVersion = .zD2
+                Task {
+                    await AppDataModule(appData: $appData).save()
+                }
+            }
+            .padding()
+        }
     }
 }
 

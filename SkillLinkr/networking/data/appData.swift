@@ -19,6 +19,7 @@ struct AppData: Codable, Equatable {
 
 struct AppSettings: Codable, Equatable {
     var showFeedActionButtons: Bool?
+    var layoutVersion: LayoutVersion?
     var profileImageCache: Data?
 }
 
@@ -33,6 +34,11 @@ struct CachedImage: Codable, Equatable {
     var owner: String //UserId
     var key: String
     var data: Data
+}
+
+enum LayoutVersion: Codable, Equatable {
+    case zD1
+    case zD2
 }
 
 class AppDataModule {
