@@ -107,15 +107,31 @@
 			path = extensions;
 			sourceTree = "<group>";
 		};
-		6F3AEEC62C4442AE00B4566A /* views */ = {
+		6F2A4BBC2C4D998300D290E2 /* 0.1.x */ = {
 			isa = PBXGroup;
 			children = (
-				6FF92F0D2C42857B00B31E65 /* MainView.swift */,
 				6F3AEEC72C4442D600B4566A /* Onboarding.swift */,
 				6F3AEEC92C447BA100B4566A /* Profile.swift */,
 				6F50040B2C4C3C6500952BD7 /* PatchProfile.swift */,
 				6F3AEECB2C447BF300B4566A /* Settings.swift */,
 				6F3B330C2C45C62A00544998 /* Feed.swift */,
+			);
+			path = 0.1.x;
+			sourceTree = "<group>";
+		};
+		6F2A4BBD2C4D998B00D290E2 /* 0.2.x */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = 0.2.x;
+			sourceTree = "<group>";
+		};
+		6F3AEEC62C4442AE00B4566A /* views */ = {
+			isa = PBXGroup;
+			children = (
+				6FF92F0D2C42857B00B31E65 /* MainView.swift */,
+				6F2A4BBD2C4D998B00D290E2 /* 0.2.x */,
+				6F2A4BBC2C4D998300D290E2 /* 0.1.x */,
 			);
 			path = views;
 			sourceTree = "<group>";
@@ -522,7 +538,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 14.5;
-				MARKETING_VERSION = 0.1.8;
+				MARKETING_VERSION = 0.1.9;
 				PRODUCT_BUNDLE_IDENTIFIER = de.micstudios.SkillLinkr;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
@@ -563,7 +579,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 14.5;
-				MARKETING_VERSION = 0.1.8;
+				MARKETING_VERSION = 0.1.9;
 				PRODUCT_BUNDLE_IDENTIFIER = de.micstudios.SkillLinkr;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
