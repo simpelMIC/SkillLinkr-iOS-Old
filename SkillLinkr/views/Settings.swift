@@ -135,7 +135,7 @@ struct DeveloperSettingsView: View {
             }
         }
         .alert("You really wanna do that??", isPresented: $isAlert2Presented) {
-            if $appData.dataURL.wrappedValue == "https://images.skilllinkr.micstudios.de/upload" {
+            if $appData.dataURL.wrappedValue == "https://images.skilllinkr.micstudios.de/" {
                 Button("No I want to be good", role: .cancel) {
                     localDataURL = $appData.dataURL.wrappedValue
                     isAlert2Presented.toggle()

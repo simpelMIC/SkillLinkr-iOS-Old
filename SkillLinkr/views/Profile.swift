@@ -7,22 +7,25 @@
 
 import Foundation
 import SwiftUI
+import CachedAsyncImage
 
 struct ProfileView: View {
     @Binding var httpModule: HTTPModule
     @Binding var appData: AppData
     @State var isSheetPresented: Bool = false
+    @State var id = UUID()
     var body: some View {
         if $appData.user.wrappedValue == nil {
             Text("Fetching user data...")
         } else {
             ScrollView {
                 VStack {
-                    AsyncImage(url: URL(string: "https://flakecraft.net/images/freakcraft-icon.jpeg")!, content: {_ in
-                        AsyncImage(url: URL(string: "https://flakecraft.net/images/freakcraft-icon.jpeg")!)
+                    CachedAsyncImage(url: URL(string: "\(appData.dataURL)/uploads/\(appData.user?.id ?? "")_profileImage.jpg")!, content: {_ in
+                        AsyncImage(url: URL(string: "\(appData.dataURL)/uploads/\(appData.user?.id ?? "")_profileImage.jpg")!)
                             .aspectRatio(contentMode: .fill)
                             .frame(maxWidth: .infinity, maxHeight: 350)
                             .clipped()
+                            .id(id)
                     }, placeholder: {
                         Image("userIcon")
                             .renderingMode(.original)
@@ -34,6 +37,7 @@ struct ProfileView: View {
                     .aspectRatio(contentMode: .fill)
                     .frame(maxWidth: .infinity, maxHeight: 350)
                     .clipped()
+                    .id(id)
                     Text($appData.user.wrappedValue?.firstname ?? "Fetching user data...")
                         .font(.title)
                 }
@@ -48,11 +52,13 @@ struct ProfileView: View {
             }
             .task {
                 getUser()
+                id = UUID()
             }
             .sheet(isPresented: $isSheetPresented, content: {
                 PatchProfileView(httpModule: $httpModule, appData: $appData, navigationBarTitleMode: .inline) {
                     isSheetPresented.toggle()
                     getUser()
+                    id = UUID()
                 }
             })
         }
@@ -73,6 +79,10 @@ struct ProfileView: View {
 
 #Preview {
     NavigationStack {
-        ProfileView(httpModule: .constant(HTTPModule(settings: .constant(AppData(apiURL: "", dataURL: "https://images.skilllinkr.micstudios.de/upload", appSettings: AppSettings())), appDataModule: AppDataModule(appData: .constant(AppData(apiURL: "", dataURL: "https://images.skilllinkr.micstudios.de/upload", appSettings: AppSettings()))))), appData: .constant(AppData(apiURL: "", dataURL: "https://images.skilllinkr.micstudios.de/upload", user: User(id: "", firstname: "Thorsten", lastname: "Schmidt", mail: "", released: true, role: UserRole(id: 0, name: "", description: "", createdAt: "", updatedAt: ""), updatedAt: "", createdAt: ""), appSettings: AppSettings())))
+        ProfileView(httpModule: .constant(HTTPModule(settings: .constant(AppData(apiURL: "", dataURL: "https://images.skilllinkr.micstudios.de/upload", appSettings: AppSettings())), appDataModule: AppDataModule(appData: .constant(AppData(apiURL: "", dataURL: "https://images.skilllinkr.micstudios.de/upload", appSettings: AppSettings()))))), appData: .constant(AppData(apiURL: "", dataURL: "https://images.skilllinkr.micstudios.de/upload", user: User(id: "clylut6xg0007s9menwvunl5i", firstname: "Thorsten", lastname: "Schmidt", mail: "", released: true, role: UserRole(id: 0, name: "", description: "", createdAt: "", updatedAt: ""), updatedAt: "", createdAt: ""), appSettings: AppSettings())))
     }
+}
+
+extension URLCache {
+    static let imageCache = URLCache(memoryCapacity: 512*1000*1000, diskCapacity: 10*1000*1000*1000)
 }

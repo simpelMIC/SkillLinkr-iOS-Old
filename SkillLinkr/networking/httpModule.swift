@@ -575,65 +575,36 @@ class HTTPModule: ObservableObject {
     
     //IMAGE HANDLER
     
-    func uploadImage(imageData: Data, to url: URL, withAccessKey accessKey: String, completion: @escaping (Result<String, Error>) -> Void) {
-        // Append the access key as a query parameter
-        var components = URLComponents(url: url, resolvingAgainstBaseURL: false)!
-        components.queryItems = [URLQueryItem(name: "access_key", value: accessKey)]
-        guard let fullURL = components.url else {
-            let error = NSError(domain: url.absoluteString, code: 1, userInfo: [NSLocalizedDescriptionKey: "Invalid URL"])
-            completion(.failure(error))
-            return
-        }
-        
-        var request = URLRequest(url: fullURL)
+    func uploadImage(_ image: UIImage, url: URL, owner: User, key: String) {
+        let phpURL = URL(string: "\(url)/upload.php")!
+        var request = URLRequest(url: phpURL)
         request.httpMethod = "POST"
-        
         let boundary = UUID().uuidString
         request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
         
-        var body = Data()
-        body.append("--\(boundary)\r\n")
-        body.append("Content-Disposition: form-data; name=\"file\"; filename=\"image.jpg\"\r\n")
-        body.append("Content-Type: image/jpeg\r\n\r\n")
-        body.append(imageData)
-        body.append("\r\n")
-        body.append("--\(boundary)--\r\n")
+        var data = Data()
+        data.append("--\(boundary)\r\n".data(using: .utf8)!)
+        data.append("Content-Disposition: form-data; name=\"file\"; filename=\"\(owner.id)_\(key).jpg\"\r\n".data(using: .utf8)!)
+        data.append("Content-Type: image/jpeg\r\n\r\n".data(using: .utf8)!)
+        data.append(image.jpegData(compressionQuality: 1.0)!)
+        data.append("\r\n--\(boundary)--\r\n".data(using: .utf8)!)
         
-        request.httpBody = body
-        
-        let session = URLSession.shared
-        let task = session.dataTask(with: request) { data, response, error in
+        URLSession.shared.uploadTask(with: request, from: data) { responseData, response, error in
             if let error = error {
-                DispatchQueue.main.async {
-                    completion(.failure(error))
+                let alert = UIAlertController(title: "Failed to upload image", message: error.localizedDescription, preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: "Ok", style: .cancel))
+                if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                   let rootViewController = scene.windows.first?.rootViewController {
+                    rootViewController.present(alert, animated: true, completion: nil)
                 }
+                print("Upload error: \(error)")
                 return
             }
-            
-            guard let httpResponse = response as? HTTPURLResponse else {
-                let error = NSError(domain: url.absoluteString, code: 1, userInfo: [NSLocalizedDescriptionKey: "Invalid response"])
-                DispatchQueue.main.async {
-                    completion(.failure(error))
-                }
-                return
+            if let responseData = responseData {
+                print("Response: \(String(data: responseData, encoding: .utf8) ?? "No response")")
             }
-            
-            if httpResponse.statusCode == 200 {
-                let responseString = String(data: data ?? Data(), encoding: .utf8) ?? "No response data"
-                DispatchQueue.main.async {
-                    completion(.success(responseString))
-                }
-            } else {
-                let error = NSError(domain: url.absoluteString, code: httpResponse.statusCode, userInfo: [NSLocalizedDescriptionKey: "HTTP Error: \(httpResponse.statusCode)"])
-                DispatchQueue.main.async {
-                    completion(.failure(error))
-                }
-            }
-        }
-        
-        task.resume()
+        }.resume()
     }
-
 }
 
 extension Data {
