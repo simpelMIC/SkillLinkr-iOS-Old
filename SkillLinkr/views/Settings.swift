@@ -135,7 +135,7 @@ struct DeveloperSettingsView: View {
             }
         }
         .alert("You really wanna do that??", isPresented: $isAlert2Presented) {
-            if $appData.dataURL.wrappedValue == "https://images.skilllinkr.micstudios.de/" {
+            if $appData.dataURL.wrappedValue == "https://images.skilllinkr.micstudios.de/upload" {
                 Button("No I want to be good", role: .cancel) {
                     localDataURL = $appData.dataURL.wrappedValue
                     isAlert2Presented.toggle()
@@ -162,6 +162,6 @@ struct DeveloperSettingsView: View {
 
 #Preview {
     NavigationStack {
-        SettingsView(httpModule: .constant(HTTPModule(settings: .constant(AppData(apiURL: "", dataURL: "https://images.skilllinkr.micstudios.de/", appSettings: AppSettings())), appDataModule: AppDataModule(appData: .constant(AppData(apiURL: "", dataURL: "https://images.skilllinkr.micstudios.de/", appSettings: AppSettings()))))), appData: .constant(AppData(apiURL: "", dataURL: "https://images.skilllinkr.micstudios.de/", appSettings: AppSettings())))
+        SettingsView(httpModule: .constant(HTTPModule(settings: .constant(AppData(apiURL: "", dataURL: "https://images.skilllinkr.micstudios.de/upload", appSettings: AppSettings())), appDataModule: AppDataModule(appData: .constant(AppData(apiURL: "", dataURL: "https://images.skilllinkr.micstudios.de/upload", appSettings: AppSettings()))))), appData: .constant(AppData(apiURL: "", dataURL: "https://images.skilllinkr.micstudios.de/upload", appSettings: AppSettings())))
     }
 }

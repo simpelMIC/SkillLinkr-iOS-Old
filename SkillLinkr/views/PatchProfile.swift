@@ -73,25 +73,37 @@ struct PatchProfileView: View {
                 }
             case .failure(let error):
                 DispatchQueue.main.async {
-                    message = "Failed to update user: \(error.localizedDescription)"
-                    print("Failed to patch user: \(error.localizedDescription)")
-                }
-            }
-        }
-        if selectedImageData != nil {
-            let request = ImageUploader(appData: $appData, uploadImage: UIImage(data: selectedImageData!)!, number: 1, key: "profileImage")
-            request.upload { result in
-                switch result {
-                case .success(let value):
-                    assert(value.statusCode == 201)
-                case .failure(let error):
-                    let alert = UIAlertController(title: "Failed to upload Image", message: error.localizedDescription, preferredStyle: .alert)
+                    let alert = UIAlertController(title: "Failed to update user", message: error.localizedDescription, preferredStyle: .alert)
                     alert.addAction(UIAlertAction(title: "Ok", style: .cancel))
                     if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
                        let rootViewController = scene.windows.first?.rootViewController {
                         rootViewController.present(alert, animated: true, completion: nil)
                     }
-                    print(error.localizedDescription)
+                    print("Failed to patch user: \(error.localizedDescription)")
+                }
+            }
+        }
+        if selectedImageData != nil {
+            if let image = UIImage(data: selectedImageData!), let imageData = image.jpegData(compressionQuality: 1.0) {
+                let uploadURL = URL(string: $appData.dataURL.wrappedValue)!
+                
+                httpModule.uploadImage(imageData: imageData, to: uploadURL, withAccessKey: "this_is_a_demonstration_key") { result in
+                    DispatchQueue.main.async {
+                        switch result {
+                        case .success(let response):
+                            print("Upload successful: \(response)")
+                            // Update UI here
+                        case .failure(let error):
+                            let alert = UIAlertController(title: "Failed to upload Image", message: error.localizedDescription, preferredStyle: .alert)
+                            alert.addAction(UIAlertAction(title: "Ok", style: .cancel))
+                            if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                               let rootViewController = scene.windows.first?.rootViewController {
+                                rootViewController.present(alert, animated: true, completion: nil)
+                            }
+                            print("Upload failed: \(error)")
+                            // Handle error and update UI here
+                        }
+                    }
                 }
             }
         }
@@ -112,8 +124,7 @@ struct PatchProfileView: View {
 
 #Preview {
     NavigationStack {
-        PatchProfileView(httpModule: .constant(HTTPModule(settings: .constant(AppData(apiURL: "", dataURL: "https://images.skilllinkr.micstudios.de/", appSettings: AppSettings())), appDataModule: AppDataModule(appData: .constant(AppData(apiURL: "", dataURL: "https://images.skilllinkr.micstudios.de/", appSettings: AppSettings()))))), appData: .constant(AppData(apiURL: "", dataURL: "https://images.skilllinkr.micstudios.de/", user: User(id: "", firstname: "Thorsten", lastname: "Schmidt", mail: "", released: true, role: UserRole(id: 0, name: "", description: "", createdAt: "", updatedAt: ""), updatedAt: "", createdAt: ""), appSettings: AppSettings())), navigationBarTitleMode: .large) {
-            
+        PatchProfileView(httpModule: .constant(HTTPModule(settings: .constant(AppData(apiURL: "", dataURL: "https://images.skilllinkr.micstudios.de/upload", appSettings: AppSettings())), appDataModule: AppDataModule(appData: .constant(AppData(apiURL: "", dataURL: "https://images.skilllinkr.micstudios.de/upload", appSettings: AppSettings()))))), appData: .constant(AppData(apiURL: "", dataURL: "https://images.skilllinkr.micstudios.de/upload", user: User(id: "", firstname: "Thorsten", lastname: "Schmidt", mail: "", released: true, role: UserRole(id: 0, name: "", description: "", createdAt: "", updatedAt: ""), updatedAt: "", createdAt: ""), appSettings: AppSettings())), navigationBarTitleMode: .large) {
         }
     }
 }

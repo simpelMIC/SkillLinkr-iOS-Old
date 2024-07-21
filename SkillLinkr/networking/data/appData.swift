@@ -36,7 +36,7 @@ class AppDataModule {
     func load() {
         let defaults = UserDefaults.standard
         let appData = AppDataJSONModule().decode(defaults.string(forKey: "SkilllinkrAppData") ?? "")
-        self.appData = appData ?? AppData(apiURL: "https://skilllinkr.micstudios.de/api", dataURL: "https://images.skilllinkr.micstudios.de/", appSettings: AppSettings())
+        self.appData = appData ?? AppData(apiURL: "https://skilllinkr.micstudios.de/api", dataURL: "https://images.skilllinkr.micstudios.de/upload", appSettings: AppSettings())
     }
 }
 

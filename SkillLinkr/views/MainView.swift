@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct MainView: View {
-    @State var appData: AppData = AppData(apiURL: "https://skilllinkr.micstudios.de/api", dataURL: "https://images.skilllinkr.micstudios.de/", appSettings: AppSettings())
+    @State var appData: AppData = AppData(apiURL: "https://skilllinkr.micstudios.de/api", dataURL: "https://images.skilllinkr.micstudios.de/upload", appSettings: AppSettings())
     var body: some View {
         ContentView(httpModule: HTTPModule(settings: $appData, appDataModule: AppDataModule(appData: $appData)), appData: $appData)
             .task {
