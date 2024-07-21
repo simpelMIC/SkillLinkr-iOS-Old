@@ -883,7 +883,7 @@ class HTTPModule: ObservableObject {
 
 //ZD2 HTTP
 
-class ZD2HTTPSModule: ObservableObject {
+class HTTPSModule: ObservableObject {
     func login(apiURL: String, mail: String, password: String, completion: @escaping (Result<LoginResponse, Error>) -> Void) {
         let url = URL(string: "\(apiURL)/login")!
         var request = URLRequest(url: url)

@@ -45,7 +45,7 @@ struct FailedLoginView: View {
                 .buttonStyle(.borderedProminent)
                 .padding()
                 Button("Retry") {
-                    HTTPModule()
+                    
                 }
                 .padding()
             }
