@@ -7,12 +7,17 @@
 
 import SwiftUI
 
+let defaultZD2Data = ZD2Data(settings: ZD2Settings(apiURL: URL(string: "https://skilllinkr.micstudios.de/api")!, showFeedActionButtons: false), appUser: AppUser(userToken: "", loggedIn: false, verifiedLogIn: false, user: ZD2User(user: User(id: "", firstname: "", lastname: "", mail: "", released: false, role: UserRole(id: 0, name: "", description: "", createdAt: "", updatedAt: ""), updatedAt: "", createdAt: ""), socialmedia: Socialmedia(id: 0, userId: "", updatedAt: "", createdAt: ""), teachingInformation: Teachinginformation(id: 0, userId: "", teachesInPerson: false, teachesOnline: false, updatedAt: "", createdAt: ""))), cache: ZD2Cache(users: [], skillCategories: [], skills: [], images: []))
+
+let dummyZD2Data = ZD2Data(settings: ZD2Settings(apiURL: URL(string: "https://skilllinkr.micstudios.de/api")!, showFeedActionButtons: false), appUser: AppUser(userToken: "", loggedIn: true, verifiedLogIn: true, user: ZD2User(user: User(id: "", firstname: "Thorsten", lastname: "Schmidt", mail: "", released: true, role: UserRole(id: 0, name: "", description: "", createdAt: "", updatedAt: ""), updatedAt: "", createdAt: ""), socialmedia: Socialmedia(id: 0, userId: "", updatedAt: "", createdAt: ""), teachingInformation: Teachinginformation(id: 0, userId: "", teachesInPerson: false, teachesOnline: false, updatedAt: "", createdAt: ""))), cache: ZD2Cache(users: [], skillCategories: [], skills: [], images: []))
+
 struct MainView: View {
     //One of many default ZD1Data
-    @State var appData: AppData = AppData(apiURL: "https://skilllinkr.micstudios.de/api", dataURL: "https://images.skilllinkr.micstudios.de", appSettings: AppSettings(), cache: AppCache())
+    @State var appData: AppData = AppData(apiURL: "https://skilllinkr.micstudios.de/api", dataURL: "https://images.skilllinkr.micstudios.de", appSettings: AppSettings(layoutVersion: .zD2), cache: AppCache())
     //Default ZD2Data
-    @State var zd2Data: ZD2Data = ZD2Data(settings: ZD2Settings(apiURL: URL(string: "https://skilllinkr.micstudios.de/api")!, showFeedActionButtons: false), appUser: AppUser(userToken: "", loggedIn: false, verifiedLogIn: false, user: ZD2User(user: User(id: "", firstname: "", lastname: "", mail: "", released: false, role: UserRole(id: 0, name: "", description: "", createdAt: "", updatedAt: ""), updatedAt: "", createdAt: ""), socialmedia: Socialmedia(id: 0, userId: "", updatedAt: "", createdAt: ""), teachingInformation: Teachinginformation(id: 0, userId: "", teachesInPerson: false, teachesOnline: false, updatedAt: "", createdAt: ""))), cache: ZD2Cache(users: [], skillCategories: [], skills: []))
+    @State var zd2Data: ZD2Data = defaultZD2Data
     var body: some View {
+        /*
         if appData.appSettings.layoutVersion == .zD1 {
             ContentView(httpModule: HTTPModule(settings: $appData, appDataModule: AppDataModule(appData: $appData)), appData: $appData)
                 .task {
@@ -37,11 +42,28 @@ struct MainView: View {
                 }
         } else {
             ChooseLayoutVersionView(appData: $appData, zd2Data: $zd2Data)
-        }
+                .task {
+                    await AppDataModule(appData: $appData).load()
+                    ZD2DataModule().load { data in
+                        zd2Data = data ?? zd2Data
+                    }
+                }
+        }*/
+        ZD2Management(zd2Data: $zd2Data)
+            .task {
+                ZD2DataModule().load { data in
+                    //Set ZD2Data to (from UserDefaults) loaded data
+                    //Fallback default Data is loaded if an error occurs
+                    zd2Data = data ?? zd2Data
+                }
+            }
+            .onDisappear {
+                ZD2DataModule().save($zd2Data.wrappedValue)
+            }
     }
 }
 
-//ZD1
+
 struct ChooseLayoutVersionView: View {
     @Binding var appData: AppData
     @Binding var zd2Data: ZD2Data
@@ -72,6 +94,7 @@ struct ChooseLayoutVersionView: View {
     }
 }
 
+//ZD1
 struct ContentView: View {
     @State var httpModule: HTTPModule
     @Binding var appData: AppData

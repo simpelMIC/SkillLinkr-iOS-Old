@@ -9,9 +9,14 @@
 /* Begin PBXBuildFile section */
 		6F2A4BB82C4D3EFE00D290E2 /* CachedAsyncImage in Frameworks */ = {isa = PBXBuildFile; productRef = 6F2A4BB72C4D3EFE00D290E2 /* CachedAsyncImage */; };
 		6F2A4BBB2C4D475E00D290E2 /* AllExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F2A4BBA2C4D475E00D290E2 /* AllExtensions.swift */; };
-		6F2A4BBF2C4D9BB200D290E2 /* OnboardingZD2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F2A4BBE2C4D9BB200D290E2 /* OnboardingZD2.swift */; };
+		6F2A4BBF2C4D9BB200D290E2 /* ZD2Onboarding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F2A4BBE2C4D9BB200D290E2 /* ZD2Onboarding.swift */; };
 		6F2A4BC12C4D9CC400D290E2 /* ZD2Management.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F2A4BC02C4D9CC400D290E2 /* ZD2Management.swift */; };
 		6F2A4BC32C4D9DE600D290E2 /* zd2Data.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F2A4BC22C4D9DE600D290E2 /* zd2Data.swift */; };
+		6F2A4BC52C4DC42100D290E2 /* ZD2TabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F2A4BC42C4DC42100D290E2 /* ZD2TabView.swift */; };
+		6F2A4BC82C4DC5F800D290E2 /* ZD2Feed.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F2A4BC72C4DC5F800D290E2 /* ZD2Feed.swift */; };
+		6F2A4BCA2C4DC9DD00D290E2 /* ZD2Messenger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F2A4BC92C4DC9DD00D290E2 /* ZD2Messenger.swift */; };
+		6F2A4BCC2C4DCA2C00D290E2 /* ZD2UserView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F2A4BCB2C4DCA2C00D290E2 /* ZD2UserView.swift */; };
+		6F2A4BCE2C4DD10000D290E2 /* ZD2Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F2A4BCD2C4DD10000D290E2 /* ZD2Settings.swift */; };
 		6F3AEEC82C4442D600B4566A /* OnboardingZD1.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F3AEEC72C4442D600B4566A /* OnboardingZD1.swift */; };
 		6F3AEECA2C447BA100B4566A /* ProfileZD1.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F3AEEC92C447BA100B4566A /* ProfileZD1.swift */; };
 		6F3AEECC2C447BF300B4566A /* SettingsZD1.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F3AEECB2C447BF300B4566A /* SettingsZD1.swift */; };
@@ -48,9 +53,14 @@
 
 /* Begin PBXFileReference section */
 		6F2A4BBA2C4D475E00D290E2 /* AllExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AllExtensions.swift; sourceTree = "<group>"; };
-		6F2A4BBE2C4D9BB200D290E2 /* OnboardingZD2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingZD2.swift; sourceTree = "<group>"; };
+		6F2A4BBE2C4D9BB200D290E2 /* ZD2Onboarding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZD2Onboarding.swift; sourceTree = "<group>"; };
 		6F2A4BC02C4D9CC400D290E2 /* ZD2Management.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZD2Management.swift; sourceTree = "<group>"; };
 		6F2A4BC22C4D9DE600D290E2 /* zd2Data.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = zd2Data.swift; sourceTree = "<group>"; };
+		6F2A4BC42C4DC42100D290E2 /* ZD2TabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZD2TabView.swift; sourceTree = "<group>"; };
+		6F2A4BC72C4DC5F800D290E2 /* ZD2Feed.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZD2Feed.swift; sourceTree = "<group>"; };
+		6F2A4BC92C4DC9DD00D290E2 /* ZD2Messenger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZD2Messenger.swift; sourceTree = "<group>"; };
+		6F2A4BCB2C4DCA2C00D290E2 /* ZD2UserView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZD2UserView.swift; sourceTree = "<group>"; };
+		6F2A4BCD2C4DD10000D290E2 /* ZD2Settings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZD2Settings.swift; sourceTree = "<group>"; };
 		6F3AEEC72C4442D600B4566A /* OnboardingZD1.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingZD1.swift; sourceTree = "<group>"; };
 		6F3AEEC92C447BA100B4566A /* ProfileZD1.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileZD1.swift; sourceTree = "<group>"; };
 		6F3AEECB2C447BF300B4566A /* SettingsZD1.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsZD1.swift; sourceTree = "<group>"; };
@@ -129,7 +139,12 @@
 			isa = PBXGroup;
 			children = (
 				6F2A4BC02C4D9CC400D290E2 /* ZD2Management.swift */,
-				6F2A4BBE2C4D9BB200D290E2 /* OnboardingZD2.swift */,
+				6F2A4BBE2C4D9BB200D290E2 /* ZD2Onboarding.swift */,
+				6F2A4BC42C4DC42100D290E2 /* ZD2TabView.swift */,
+				6F2A4BC72C4DC5F800D290E2 /* ZD2Feed.swift */,
+				6F2A4BC92C4DC9DD00D290E2 /* ZD2Messenger.swift */,
+				6F2A4BCB2C4DCA2C00D290E2 /* ZD2UserView.swift */,
+				6F2A4BCD2C4DD10000D290E2 /* ZD2Settings.swift */,
 			);
 			path = 0.2.x;
 			sourceTree = "<group>";
@@ -363,16 +378,21 @@
 				6F3B330D2C45C62A00544998 /* FeedZD1.swift in Sources */,
 				6F2A4BC32C4D9DE600D290E2 /* zd2Data.swift in Sources */,
 				6FF92F0E2C42857B00B31E65 /* MainView.swift in Sources */,
+				6F2A4BCC2C4DCA2C00D290E2 /* ZD2UserView.swift in Sources */,
 				6F3AEECC2C447BF300B4566A /* SettingsZD1.swift in Sources */,
 				6FF92F3D2C4439A200B31E65 /* appData.swift in Sources */,
 				6F2A4BBB2C4D475E00D290E2 /* AllExtensions.swift in Sources */,
 				6FF92F3B2C42905200B31E65 /* jsonData.swift in Sources */,
 				6F2A4BC12C4D9CC400D290E2 /* ZD2Management.swift in Sources */,
+				6F2A4BC52C4DC42100D290E2 /* ZD2TabView.swift in Sources */,
+				6F2A4BCA2C4DC9DD00D290E2 /* ZD2Messenger.swift in Sources */,
 				6FF92F0C2C42857B00B31E65 /* SkillLinkrApp.swift in Sources */,
 				6F3AEEC82C4442D600B4566A /* OnboardingZD1.swift in Sources */,
-				6F2A4BBF2C4D9BB200D290E2 /* OnboardingZD2.swift in Sources */,
+				6F2A4BC82C4DC5F800D290E2 /* ZD2Feed.swift in Sources */,
+				6F2A4BBF2C4D9BB200D290E2 /* ZD2Onboarding.swift in Sources */,
 				6F50040C2C4C3C6500952BD7 /* PatchProfileZD1.swift in Sources */,
 				6FF92F392C42902D00B31E65 /* http(s)Module.swift in Sources */,
+				6F2A4BCE2C4DD10000D290E2 /* ZD2Settings.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -550,7 +570,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 14.5;
-				MARKETING_VERSION = 0.1.9;
+				MARKETING_VERSION = 0.2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = de.micstudios.SkillLinkr;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
@@ -591,7 +611,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 14.5;
-				MARKETING_VERSION = 0.1.9;
+				MARKETING_VERSION = 0.2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = de.micstudios.SkillLinkr;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;

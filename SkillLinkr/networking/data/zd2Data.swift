@@ -38,6 +38,7 @@ struct ZD2Cache: Codable, Equatable {
     var users: [ZD2User]
     var skillCategories: [SkillCategory]
     var skills: [Skill]
+    var images: [CachedImage]
 }
 
 class ZD2DataModule {
