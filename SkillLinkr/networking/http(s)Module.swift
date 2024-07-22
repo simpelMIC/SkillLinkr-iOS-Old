@@ -1044,7 +1044,7 @@ class HTTPSModule: ObservableObject {
         task.resume()
     }
     
-    func patchUser(zd2Data: ZD2Data, patchUserId: String, firstname: String? = nil, lastname: String? = nil, password: String? = nil, completion: @escaping (Result<PatchResponse, Error>) -> Void) {
+    func patchUser(zd2Data: ZD2Data, patchUserId: String, firstname: String? = nil, lastname: String? = nil, password: String? = nil, roleID: Int? = nil, released: Bool? = nil, completion: @escaping (Result<PatchResponse, Error>) -> Void) {
         let url = URL(string: "\(zd2Data.settings.apiURL)/user")!
         var request = URLRequest(url: url)
         request.httpMethod = "PATCH"
@@ -1065,6 +1065,14 @@ class HTTPSModule: ObservableObject {
         
         if let password = password {
             parameters["password"] = password
+        }
+        
+        if let roleID = roleID {
+            parameters["roleID"] = roleID
+        }
+        
+        if let released = released {
+            parameters["released"] = released
         }
         
         do {

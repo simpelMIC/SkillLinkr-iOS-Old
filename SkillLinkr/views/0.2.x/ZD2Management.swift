@@ -20,13 +20,13 @@ struct ZD2Management: View {
                 if dataLoaded {
                     ZD2TabView(zd2Data: $zd2Data)
                         .onAppear {
-                            getUserData()
+                            getAppUser()
                         }
                 } else {
                     Text("Fetching user details...")
-                    //Load user on apper
+                    //Load user on appear
                         .onAppear {
-                            getUserData()
+                            getAppUser()
                         }
                 }
             } else {
@@ -39,7 +39,7 @@ struct ZD2Management: View {
             message: Text(error ?? ""),
             primaryButton: .default(Text("Retry"), action: {
                 isAlertPresented = false
-                getUserData()
+                getAppUser()
             }),
             secondaryButton: .destructive(Text("Log Out"), action: {
                 isAlertPresented = false
@@ -49,28 +49,155 @@ struct ZD2Management: View {
         })
     }
     
-    public func getUserData() {
-        HTTPSModule().getUser($zd2Data.appUser.user.user.wrappedValue, zd2Data: $zd2Data.wrappedValue) { result in
-            switch result {
-            case .success(let response):
-                zd2Data.appUser.user.user = response.message
-                print("Logged in as \(response.message.firstname)")
-                zd2Data.appUser.verifiedLogIn = true
-                dataLoaded = true
-            case .failure(let error):
-                isAlertPresented = true
-                dataLoaded = false
-                self.error = error.localizedDescription
-            }
-        }
-    }
-    
     public func logOut() {
         dataLoaded = false
         zd2Data.appUser.loggedIn = false
         zd2Data.appUser.verifiedLogIn = false
         zd2Data.appUser.userToken = ""
         ZD2DataModule().save($zd2Data.wrappedValue)
+    }
+    
+    public func getAppUser() {
+        print("Fetching appUser...")
+        getUser(zd2Data.appUser.user) { result in
+            switch result {
+            case .success((let user, let socialmedia, let teachingInformation)):
+                if user != nil {
+                    zd2Data.appUser.user.user = user!
+                    zd2Data.appUser.verifiedLogIn = true
+                    dataLoaded = true
+                    print("Saved (GET) UserData")
+                } else {
+                    isAlertPresented = true
+                    dataLoaded = false
+                }
+                if socialmedia != nil {
+                    zd2Data.appUser.user.socialmedia = socialmedia!
+                    print("Saved (GET) Socialmedia")
+                }
+                if teachingInformation != nil {
+                    zd2Data.appUser.user.teachingInformation = teachingInformation!
+                    print("Saved (GET) TeachingInformation")
+                }
+            case .failure(let error):
+                print("FAILED TO GET APP USER: \(error.localizedDescription)")
+                self.error = error.localizedDescription
+                isAlertPresented = true
+            }
+        }
+    }
+
+    public func getUser(_ user: ZD2User, completion: @escaping (Result<(User?, Socialmedia?, Teachinginformation?), Error>) -> Void) {
+        let dispatchGroup = DispatchGroup()
+        
+        // Variables to store the results
+        var userData: User?
+        var userDataError: Error?
+        
+        var socialMedia: Socialmedia?
+        var socialMediaError: Error?
+        
+        var teachingInformation: Teachinginformation?
+        var teachingInformationError: Error?
+        
+        // Get user data
+        dispatchGroup.enter()
+        getUserData(user) { result in
+            switch result {
+            case .success(let response):
+                userData = response
+            case .failure(let error):
+                self.error = error.localizedDescription
+                userDataError = error
+                break
+            }
+            dispatchGroup.leave()
+        }
+        
+        // Get user social media
+        dispatchGroup.enter()
+        getUserSocialmedia(user) { result in
+            switch result {
+            case .success(let response):
+                socialMedia = response
+            case .failure(let error):
+                socialMediaError = error
+                break
+            }
+            dispatchGroup.leave()
+        }
+        
+        // Get user teaching information
+        dispatchGroup.enter()
+        getUserTeachingInformation(user) { result in
+            switch result {
+            case .success(let response):
+                teachingInformation = response
+            case .failure(let error):
+                teachingInformationError = error
+                break
+            }
+            dispatchGroup.leave()
+        }
+        
+        // Notify when all tasks are complete
+        dispatchGroup.notify(queue: .main) {
+            // Check if all necessary data is available
+            if userData == nil, socialMedia == nil, teachingInformation == nil {
+                // Handle the case where some of the data might be missing
+                let missingDataError = NSError(domain: "de.micstudios", code: 0, userInfo: [NSLocalizedDescriptionKey: "\(userDataError?.localizedDescription ?? ""), \(socialMediaError?.localizedDescription ?? ""), \(teachingInformationError?.localizedDescription ?? "")"])
+                completion(.failure(missingDataError))
+            } else {
+                completion(.success((userData, socialMedia, teachingInformation)))
+            }
+        }
+    }
+
+
+    
+    private func getUserData(_ user: ZD2User, completion: @escaping (Result<User, Error>) -> Void) {
+        print("Getting userData...")
+        let module = HTTPSModule()
+        module.getUser(user.user, zd2Data: $zd2Data.wrappedValue) { result in
+            switch result {
+            case .success(let response):
+                print("UserData fetched successfully: \(response.status)")
+                completion(.success(response.message))
+            case .failure(let error):
+                print("Failed to fetch userData: \(error.localizedDescription)")
+                completion(.failure(error))
+            }
+        }
+    }
+    
+    private func getUserSocialmedia(_ user: ZD2User, completion: @escaping (Result <Socialmedia, Error>) -> Void) {
+        print("Getting socialmedia...")
+        let module = HTTPSModule()
+        module.getSocialmedia(zd2Data: $zd2Data.wrappedValue) { result in
+            switch result {
+            case .success(let response):
+                print("Socialmedia fetched successfully: \(response.status)")
+                completion(.success(response.message))
+            case .failure(let error):
+                print("Failed to fetch socialmedia: \(error.localizedDescription)")
+                completion(.failure(error))
+            }
+        }
+    }
+    
+    private func getUserTeachingInformation(_ user: ZD2User, completion: @escaping (Result <Teachinginformation, Error>) -> Void) {
+        print("Gettings teachingInformation...")
+        let module = HTTPSModule()
+        module.getTeachingInformation(zd2Data: $zd2Data.wrappedValue) { result in
+            switch result {
+            case .success(let response):
+                print("Teachinginformation fetched successfully: \(response.status)")
+                completion(.success(response.message))
+            case .failure(let error):
+                print("Failed to fetch Teachinginformation: \(error.localizedDescription)")
+                completion(.failure(error))
+            }
+        }
     }
     
     public func patchUser(_ user: Binding<ZD2User>) {
@@ -103,10 +230,10 @@ struct ZD2Management: View {
         }
     }
 
-    public func patchUserData(_ user: User, completion: @escaping (Result<PatchResponse, Error>) -> Void) {
+    private func patchUserData(_ user: User, completion: @escaping (Result<PatchResponse, Error>) -> Void) {
         print("Calling patchUserData...")
         let module = HTTPSModule()
-        module.patchUser(zd2Data: $zd2Data.wrappedValue, patchUserId: user.id) { result in
+        module.patchUser(zd2Data: $zd2Data.wrappedValue, patchUserId: user.id, firstname: user.firstname, lastname: user.lastname) { result in
             switch result {
             case .success(let response):
                 print("patchUserData success: \(response)")
@@ -118,7 +245,7 @@ struct ZD2Management: View {
         }
     }
 
-    public func patchUserSocialmedia(_ socialmedia: Socialmedia, userId: String, completion: @escaping (Result<PatchResponse, Error>) -> Void) {
+    private func patchUserSocialmedia(_ socialmedia: Socialmedia, userId: String, completion: @escaping (Result<PatchResponse, Error>) -> Void) {
         print("Calling patchUserSocialmedia...")
         let module = HTTPSModule()
         module.patchSocialmedia(zd2Data: $zd2Data.wrappedValue, patchUserId: userId, xName: socialmedia.xName, instagramName: socialmedia.instagramName, discordName: socialmedia.discordName, facebookName: socialmedia.facebookName) { result in
@@ -133,7 +260,7 @@ struct ZD2Management: View {
         }
     }
 
-    public func patchUserTeachingInformation(_ teachingInformation: Teachinginformation, userId: String, completion: @escaping (Result<PatchResponse, Error>) -> Void) {
+    private func patchUserTeachingInformation(_ teachingInformation: Teachinginformation, userId: String, completion: @escaping (Result<PatchResponse, Error>) -> Void) {
         print("Calling patchUserTeachingInformation...")
         let module = HTTPSModule()
         module.patchTeachingInformation(zd2Data: $zd2Data.wrappedValue, patchUserId: userId, teachesOnline: teachingInformation.teachesOnline, teachesInPerson: teachingInformation.teachesInPerson, teachingCity: teachingInformation.teachingCity, teachingCountry: teachingInformation.teachingCountry) { result in

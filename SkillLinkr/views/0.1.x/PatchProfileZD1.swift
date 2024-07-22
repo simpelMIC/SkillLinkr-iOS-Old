@@ -7,7 +7,6 @@
 
 import Foundation
 import SwiftUI
-import CachedAsyncImage
 import PhotosUI
 
 struct PatchProfileView: View {
@@ -31,7 +30,7 @@ struct PatchProfileView: View {
             List {
                 HStack {
                     if selectedImageData == nil {
-                        CachedAsyncImage(url: httpModule.getImageURL(owner: localUser, key: "profileImage")) { result in
+                        AsyncImage(url: httpModule.getImageURL(owner: localUser, key: "profileImage")) { result in
                             if result.image == nil {
                                 Image("userIcon")
                                     .renderingMode(.original)

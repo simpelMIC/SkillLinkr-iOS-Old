@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		6F2A4BB82C4D3EFE00D290E2 /* CachedAsyncImage in Frameworks */ = {isa = PBXBuildFile; productRef = 6F2A4BB72C4D3EFE00D290E2 /* CachedAsyncImage */; };
 		6F2A4BBB2C4D475E00D290E2 /* AllExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F2A4BBA2C4D475E00D290E2 /* AllExtensions.swift */; };
 		6F2A4BBF2C4D9BB200D290E2 /* ZD2Onboarding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F2A4BBE2C4D9BB200D290E2 /* ZD2Onboarding.swift */; };
 		6F2A4BC12C4D9CC400D290E2 /* ZD2Management.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F2A4BC02C4D9CC400D290E2 /* ZD2Management.swift */; };
@@ -89,7 +88,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6F2A4BB82C4D3EFE00D290E2 /* CachedAsyncImage in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -258,7 +256,6 @@
 			);
 			name = SkillLinkr;
 			packageProductDependencies = (
-				6F2A4BB72C4D3EFE00D290E2 /* CachedAsyncImage */,
 			);
 			productName = SkillLinkr;
 			productReference = 6FF92F082C42857B00B31E65 /* SkillLinkr.app */;
@@ -333,7 +330,6 @@
 			);
 			mainGroup = 6FF92EFF2C42857B00B31E65;
 			packageReferences = (
-				6F2A4BB62C4D3EFE00D290E2 /* XCRemoteSwiftPackageReference "swiftui-cached-async-image" */,
 			);
 			productRefGroup = 6FF92F092C42857B00B31E65 /* Products */;
 			projectDirPath = "";
@@ -759,25 +755,6 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
-
-/* Begin XCRemoteSwiftPackageReference section */
-		6F2A4BB62C4D3EFE00D290E2 /* XCRemoteSwiftPackageReference "swiftui-cached-async-image" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/lorenzofiamingo/swiftui-cached-async-image";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 2.1.1;
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
-
-/* Begin XCSwiftPackageProductDependency section */
-		6F2A4BB72C4D3EFE00D290E2 /* CachedAsyncImage */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 6F2A4BB62C4D3EFE00D290E2 /* XCRemoteSwiftPackageReference "swiftui-cached-async-image" */;
-			productName = CachedAsyncImage;
-		};
-/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 6FF92F002C42857B00B31E65 /* Project object */;
 }

@@ -7,7 +7,6 @@
 
 import Foundation
 import SwiftUI
-import CachedAsyncImage
 
 struct ProfileView: View {
     @Binding var httpModule: HTTPModule

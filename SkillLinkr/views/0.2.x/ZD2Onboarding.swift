@@ -156,7 +156,7 @@ struct ZD2NewAccountView: View {
             Button("Create") {
                 create()
             }
-            .disabled(firstname.isEmpty || lastname.isEmpty || email.isEmpty || password.isEmpty || passwordConfirm.isEmpty)
+            .disabled(firstname.isEmpty || email.isEmpty || password.isEmpty || passwordConfirm.isEmpty)
         }
     }
     
