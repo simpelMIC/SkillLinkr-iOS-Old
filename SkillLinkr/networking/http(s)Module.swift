@@ -1648,4 +1648,117 @@ class HTTPSModule: ObservableObject {
         
         task.resume()
     }
+    
+    func getUserSkills(user: ZD2User, zd2Data: ZD2Data, completion: @escaping (Result<GetUserSkillsResponse, Error>) -> Void) {
+        let token = zd2Data.appUser.userToken
+        let url = URL(string: "\(zd2Data.settings.apiURL)/user/skills")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("JWT \(token)", forHTTPHeaderField: "Authorization")
+        
+        let task = URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                completion(.failure(error))
+                return
+            }
+            
+            guard let data = data, let httpResponse = response as? HTTPURLResponse else {
+                let error = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Invalid response"])
+                completion(.failure(error))
+                return
+            }
+            
+            if httpResponse.statusCode == 200 {
+                do {
+                    let response = try JSONDecoder().decode(GetUserSkillsResponse.self, from: data)
+                    completion(.success(response))
+                } catch let decodeError {
+                    let responseString = String(data: data, encoding: .utf8) ?? "Unable to parse response"
+                    let error = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Failed to decode response: \(decodeError). Response: \(responseString)"])
+                    completion(.failure(error))
+                }
+            } else if httpResponse.statusCode == 400 {
+                do {
+                    let errorResponse = try JSONDecoder().decode(ErrorResponse.self, from: data)
+                    let error = NSError(domain: "", code: 400, userInfo: [NSLocalizedDescriptionKey: errorResponse.message])
+                    completion(.failure(error))
+                } catch let decodeError {
+                    let responseString = String(data: data, encoding: .utf8) ?? "Unable to parse response"
+                    let error = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Failed to decode error response: \(decodeError). Response: \(responseString)"])
+                    completion(.failure(error))
+                }
+            } else {
+                let responseString = String(data: data, encoding: .utf8) ?? "Unable to parse response"
+                let error = NSError(domain: "", code: httpResponse.statusCode, userInfo: [NSLocalizedDescriptionKey: "Unexpected response status code: \(httpResponse.statusCode). Response: \(responseString)"])
+                completion(.failure(error))
+            }
+        }
+        
+        task.resume()
+    }
+    
+    func patchUserSkills(skills: [Skill], patchUserId: String, zd2Data: ZD2Data, completion: @escaping (Result<PatchResponse, Error>) -> Void) {
+        let url = URL(string: "\(zd2Data.settings.apiURL)/user/skills")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "PATCH"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("JWT \(zd2Data.appUser.userToken)", forHTTPHeaderField: "Authorization")
+        
+        let teachSkillIds = skills.map { $0.id }
+        let teachSkillIdsString = try? JSONSerialization.data(withJSONObject: teachSkillIds, options: .fragmentsAllowed)
+        let teachSkillIdsStringified = String(data: teachSkillIdsString!, encoding: .utf8) ?? "[]"
+        
+        let parameters: [String: Any] = [
+            "patchUserId": patchUserId,
+            "teachSkillIds": teachSkillIdsStringified
+        ]
+        
+        do {
+            request.httpBody = try JSONSerialization.data(withJSONObject: parameters, options: .prettyPrinted)
+        } catch let error {
+            completion(.failure(error))
+            return
+        }
+        
+        let task = URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                completion(.failure(error))
+                return
+            }
+            
+            guard let data = data, let httpResponse = response as? HTTPURLResponse else {
+                let error = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Invalid response"])
+                completion(.failure(error))
+                return
+            }
+            
+            switch httpResponse.statusCode {
+            case 200:
+                do {
+                    let patchResponse = try JSONDecoder().decode(PatchResponse.self, from: data)
+                    completion(.success(patchResponse))
+                } catch let decodeError {
+                    let responseString = String(data: data, encoding: .utf8) ?? "Unable to parse response"
+                    let error = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Failed to decode response: \(decodeError). Response: \(responseString)"])
+                    completion(.failure(error))
+                }
+            case 400:
+                do {
+                    let errorResponse = try JSONDecoder().decode(ErrorResponse.self, from: data)
+                    let error = NSError(domain: "", code: 400, userInfo: [NSLocalizedDescriptionKey: errorResponse.message])
+                    completion(.failure(error))
+                } catch let decodeError {
+                    let responseString = String(data: data, encoding: .utf8) ?? "Unable to parse response"
+                    let error = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Failed to decode error response: \(decodeError). Response: \(responseString)"])
+                    completion(.failure(error))
+                }
+            default:
+                let responseString = String(data: data, encoding: .utf8) ?? "Unable to parse response"
+                let error = NSError(domain: "", code: httpResponse.statusCode, userInfo: [NSLocalizedDescriptionKey: "Unexpected response status code: \(httpResponse.statusCode). Response: \(responseString)"])
+                completion(.failure(error))
+            }
+        }
+        task.resume()
+    }
 }

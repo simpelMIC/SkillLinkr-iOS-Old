@@ -19,6 +19,7 @@ struct ZD2User: Codable, Equatable {
     var user: User
     var socialmedia: Socialmedia
     var teachingInformation: Teachinginformation
+    var skills: [Skill]
 }
 
 struct AppUser: Codable, Equatable {

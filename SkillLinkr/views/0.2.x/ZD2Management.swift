@@ -61,7 +61,7 @@ struct ZD2Management: View {
         print("Fetching appUser...")
         getUser(zd2Data.appUser.user) { result in
             switch result {
-            case .success((let user, let socialmedia, let teachingInformation)):
+            case .success((let user, let socialmedia, let teachingInformation, let userSkills)):
                 if user != nil {
                     zd2Data.appUser.user.user = user!
                     zd2Data.appUser.verifiedLogIn = true
@@ -79,6 +79,10 @@ struct ZD2Management: View {
                     zd2Data.appUser.user.teachingInformation = teachingInformation!
                     print("Saved (GET) TeachingInformation")
                 }
+                if userSkills != nil {
+                    zd2Data.appUser.user.skills = userSkills!
+                    print("Saved (GET) UserSkills")
+                }
             case .failure(let error):
                 print("FAILED TO GET APP USER: \(error.localizedDescription)")
                 self.error = error.localizedDescription
@@ -87,7 +91,7 @@ struct ZD2Management: View {
         }
     }
 
-    public func getUser(_ user: ZD2User, completion: @escaping (Result<(User?, Socialmedia?, Teachinginformation?), Error>) -> Void) {
+    public func getUser(_ user: ZD2User, completion: @escaping (Result<(User?, Socialmedia?, Teachinginformation?, [Skill]?), Error>) -> Void) {
         let dispatchGroup = DispatchGroup()
         
         // Variables to store the results
@@ -95,10 +99,10 @@ struct ZD2Management: View {
         var userDataError: Error?
         
         var socialMedia: Socialmedia?
-        var socialMediaError: Error?
         
         var teachingInformation: Teachinginformation?
-        var teachingInformationError: Error?
+        
+        var userSkills: [Skill]?
         
         // Get user data
         dispatchGroup.enter()
@@ -121,7 +125,7 @@ struct ZD2Management: View {
             case .success(let response):
                 socialMedia = response
             case .failure(let error):
-                socialMediaError = error
+                print("getUserSocialmediaError: \(error)")
                 break
             }
             dispatchGroup.leave()
@@ -134,10 +138,20 @@ struct ZD2Management: View {
             case .success(let response):
                 teachingInformation = response
             case .failure(let error):
-                teachingInformationError = error
+                print("getUserTeachingInformationError: \(error)")
                 break
             }
             dispatchGroup.leave()
+        }
+        
+        dispatchGroup.enter()
+        getUserSkills(user) { result in
+            switch result {
+            case .success(let response):
+                userSkills = response
+            case .failure(let error):
+                print("getUserSkillsError: \(error)")
+            }
         }
         
         // Notify when all tasks are complete
@@ -145,10 +159,10 @@ struct ZD2Management: View {
             // Check if all necessary data is available
             if userData == nil, socialMedia == nil, teachingInformation == nil {
                 // Handle the case where some of the data might be missing
-                let missingDataError = NSError(domain: "de.micstudios", code: 0, userInfo: [NSLocalizedDescriptionKey: "\(userDataError?.localizedDescription ?? ""), \(socialMediaError?.localizedDescription ?? ""), \(teachingInformationError?.localizedDescription ?? "")"])
+                let missingDataError = NSError(domain: "de.micstudios", code: 0, userInfo: [NSLocalizedDescriptionKey: "\(userDataError?.localizedDescription ?? "")"])
                 completion(.failure(missingDataError))
             } else {
-                completion(.success((userData, socialMedia, teachingInformation)))
+                completion(.success((userData, socialMedia, teachingInformation, userSkills)))
             }
         }
     }
@@ -200,6 +214,21 @@ struct ZD2Management: View {
         }
     }
     
+    private func getUserSkills(_ user: ZD2User, completion: @escaping (Result <[Skill], Error>) -> Void) {
+        print("Getting userSkills...")
+        let module = HTTPSModule()
+        module.getUserSkills(user: user, zd2Data: $zd2Data.wrappedValue) { result in
+            switch result {
+            case .success(let response):
+                print("UserSkills fetched successfully: \(response.status)")
+                completion(.success(response.message))
+            case .failure(let error):
+                print("Failed to fetch userSkills: \(error.localizedDescription)")
+                completion(.failure(error))
+            }
+        }
+    }
+    
     public func patchUser(_ user: Binding<ZD2User>) {
         print("Starting to patch user data...")
         patchUserData(user.user.wrappedValue) { result in
@@ -226,6 +255,14 @@ struct ZD2Management: View {
                 print("User Teachinginformation has been patched successfully: \(response.status)")
             case .failure(let error):
                 print("User Teachinginformation couldn't be patched: \(error.localizedDescription)")
+            }
+        }
+        patchUserSkills(user.skills.wrappedValue, userId: user.user.id.wrappedValue) { result in
+            switch result {
+            case .success(let response):
+                print("Patched User Skills: \(response.status)")
+            case .failure(let error):
+                print("Failed to patch User Skills: \(error.localizedDescription)")
             }
         }
     }
@@ -270,6 +307,21 @@ struct ZD2Management: View {
                 completion(.success(response))
             case .failure(let error):
                 print("patchUserTeachingInformation failure: \(error)")
+                completion(.failure(error))
+            }
+        }
+    }
+    
+    private func patchUserSkills(_ skills: [Skill], userId: String, completion: @escaping (Result<PatchResponse, Error>) -> Void) {
+        print("Calling patchUserSkills...")
+        let module = HTTPSModule()
+        module.patchUserSkills(skills: skills, patchUserId: userId, zd2Data: $zd2Data.wrappedValue) { result in
+            switch result {
+            case .success(let response):
+                print("patchUserSkills success: \(response)")
+                completion(.success(response))
+            case .failure(let error):
+                print("patchUserSkills failure: \(error)")
                 completion(.failure(error))
             }
         }

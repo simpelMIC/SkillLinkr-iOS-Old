@@ -143,3 +143,8 @@ struct GetSkillTeachersResponse: Codable, Equatable {
     var status: String
     var message: [User]
 }
+
+struct GetUserSkillsResponse: Codable, Equatable {
+    var status: String
+    var message: [Skill]
+}

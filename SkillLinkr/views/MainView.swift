@@ -9,7 +9,7 @@ import SwiftUI
 
 let defaultZD2Data = ZD2Data(settings: ZD2Settings(apiURL: URL(string: "https://skilllinkr.micstudios.de/api")!, showFeedActionButtons: false), appUser: AppUser(userToken: "", loggedIn: false, verifiedLogIn: false, user: defaultUser), cache: ZD2Cache(users: [], skillCategories: [], skills: [], images: []))
 
-let defaultUser = ZD2User(user: defaultUserData, socialmedia: defaultSocialmedia, teachingInformation: defaultTeachingInformation)
+let defaultUser = ZD2User(user: defaultUserData, socialmedia: defaultSocialmedia, teachingInformation: defaultTeachingInformation, skills: [])
 
 let defaultUserData = User(id: "", firstname: "", lastname: "", mail: "", released: false, role: UserRole(id: 0, name: "", description: "", createdAt: "", updatedAt: ""), updatedAt: "", createdAt: "")
 
@@ -17,7 +17,7 @@ let defaultSocialmedia = Socialmedia(id: 0, userId: "", updatedAt: "", createdAt
 
 let defaultTeachingInformation = Teachinginformation(id: 0, userId: "", teachesInPerson: false, teachesOnline: false, updatedAt: "", createdAt: "")
 
-let dummyZD2Data = ZD2Data(settings: ZD2Settings(apiURL: URL(string: "https://skilllinkr.micstudios.de/api")!, showFeedActionButtons: false), appUser: AppUser(userToken: "", loggedIn: true, verifiedLogIn: true, user: ZD2User(user: User(id: "", firstname: "Thorsten", lastname: "Schmidt", mail: "", released: true, role: UserRole(id: 0, name: "", description: "", createdAt: "", updatedAt: ""), updatedAt: "", createdAt: ""), socialmedia: Socialmedia(id: 0, userId: "", updatedAt: "", createdAt: ""), teachingInformation: Teachinginformation(id: 0, userId: "", teachesInPerson: false, teachesOnline: false, updatedAt: "", createdAt: ""))), cache: ZD2Cache(users: [], skillCategories: [], skills: [], images: []))
+let dummyZD2Data = ZD2Data(settings: ZD2Settings(apiURL: URL(string: "https://skilllinkr.micstudios.de/api")!, showFeedActionButtons: false), appUser: AppUser(userToken: "", loggedIn: true, verifiedLogIn: true, user: ZD2User(user: User(id: "", firstname: "Thorsten", lastname: "Schmidt", mail: "", released: true, role: UserRole(id: 0, name: "", description: "", createdAt: "", updatedAt: ""), updatedAt: "", createdAt: ""), socialmedia: Socialmedia(id: 0, userId: "", updatedAt: "", createdAt: ""), teachingInformation: Teachinginformation(id: 0, userId: "", teachesInPerson: false, teachesOnline: false, updatedAt: "", createdAt: ""), skills: [])), cache: ZD2Cache(users: [], skillCategories: [], skills: [], images: []))
 
 struct MainView: View {
     //One of many default ZD1Data

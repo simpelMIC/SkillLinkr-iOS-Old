@@ -52,8 +52,8 @@ struct ZD2UserView: View {
         .refreshable {
             ZD2Management(zd2Data: $zd2Data).getUser(user) { result in
                 switch result {
-                case .success(((let userData, let socialmedia, let teachingInformation))):
-                    user = ZD2User(user: userData ?? user.user, socialmedia: socialmedia ?? user.socialmedia, teachingInformation: teachingInformation ?? user.teachingInformation)
+                case .success(((let userData, let socialmedia, let teachingInformation, let userSkills))):
+                    user = ZD2User(user: userData ?? user.user, socialmedia: socialmedia ?? user.socialmedia, teachingInformation: teachingInformation ?? user.teachingInformation, skills: userSkills ?? user.skills)
                 case .failure(let error):
                     print("Failed to get User: \(error)")
                 }
@@ -62,8 +62,8 @@ struct ZD2UserView: View {
         .onAppear {
             ZD2Management(zd2Data: $zd2Data).getUser(user) { result in
                 switch result {
-                case .success(((let userData, let socialmedia, let teachingInformation))):
-                    user = ZD2User(user: userData ?? user.user, socialmedia: socialmedia ?? user.socialmedia, teachingInformation: teachingInformation ?? user.teachingInformation)
+                case .success(((let userData, let socialmedia, let teachingInformation, let userSkills))):
+                    user = ZD2User(user: userData ?? user.user, socialmedia: socialmedia ?? user.socialmedia, teachingInformation: teachingInformation ?? user.teachingInformation, skills: userSkills ?? user.skills)
                 case .failure(let error):
                     print("Failed to get User: \(error)")
                 }
@@ -106,7 +106,7 @@ struct ZD2AppUserView: View {
 
 struct ZD2EditProfileView: View {
     @Binding var zd2Data: ZD2Data
-    @State var localUser: ZD2User = ZD2User(user: User(id: "1", firstname: "Test1", lastname: "Testmann1", mail: "test@testmann.com", released: true, role: UserRole(id: 0, name: "User", description: "User", createdAt: "", updatedAt: ""), updatedAt: "", createdAt: ""), socialmedia: Socialmedia(id: 0, userId: "1", updatedAt: "", createdAt: ""), teachingInformation: Teachinginformation(id: 0, userId: "1", teachesInPerson: true, teachesOnline: true, updatedAt: "", createdAt: ""))
+    @State var localUser: ZD2User = defaultUser
     var body: some View {
         List {
             Section("General information") {
@@ -168,7 +168,7 @@ struct ZD2EditProfileView: View {
 #Preview {
     if true {
         if false {
-            ZD2UserView(zd2Data: .constant(dummyZD2Data), user: ZD2User(user: User(id: "1", firstname: "Test1", lastname: "Testmann1", mail: "test@testmann.com", released: true, role: UserRole(id: 0, name: "User", description: "User", createdAt: "", updatedAt: ""), updatedAt: "", createdAt: ""), socialmedia: Socialmedia(id: 0, userId: "1", updatedAt: "", createdAt: ""), teachingInformation: Teachinginformation(id: 0, userId: "1", teachesInPerson: true, teachesOnline: true, updatedAt: "", createdAt: "")))
+            ZD2UserView(zd2Data: .constant(dummyZD2Data), user: ZD2User(user: User(id: "1", firstname: "Test1", lastname: "Testmann1", mail: "test@testmann.com", released: true, role: UserRole(id: 0, name: "User", description: "User", createdAt: "", updatedAt: ""), updatedAt: "", createdAt: ""), socialmedia: Socialmedia(id: 0, userId: "1", updatedAt: "", createdAt: ""), teachingInformation: Teachinginformation(id: 0, userId: "1", teachesInPerson: true, teachesOnline: true, updatedAt: "", createdAt: ""), skills: []))
         } else {
             NavigationStack {
                 ZD2AppUserView(zd2Data: .constant(dummyZD2Data))
