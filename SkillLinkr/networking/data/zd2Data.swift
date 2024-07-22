@@ -80,7 +80,7 @@ class ZD2DataJSONModule {
             return String(data: json, encoding: .utf8)
         } else {
             // Print error message if encoding fails
-            print("Error encoding ClientData")
+            print("Error encoding ZD2DATA")
             return nil
         }
     }
@@ -101,7 +101,7 @@ class ZD2DataJSONModule {
             return packetData
         } catch {
             // Print error message if decoding fails
-            print("Error decoding AppData: \(error)")
+            print("Error decoding ZD2DATA: \(error)")
             return nil
         }
     }

@@ -72,6 +72,9 @@ struct ZD2LoginView: View {
                     .textInputAutocapitalization(.never)
                 SecureField("Password", text: $password)
                     .autocorrectionDisabled()
+                if error != nil {
+                    Text(error!)
+                }
             }
             .navigationTitle("Login")
             .navigationBarTitleDisplayMode(.inline)
@@ -94,6 +97,9 @@ struct ZD2LoginView: View {
                     .autocorrectionDisabled()
                     .textFieldStyle(.roundedBorder)
                     .frame(width: 350)
+                if error != nil {
+                    Text(error!)
+                }
                 Button("Login") {
                     login()
                 }
@@ -140,6 +146,9 @@ struct ZD2NewAccountView: View {
                 .autocorrectionDisabled()
             SecureField("Confirm Password", text: $passwordConfirm)
                 .autocorrectionDisabled()
+            if error != nil {
+                Text(error!)
+            }
         }
         .navigationTitle("New Account")
         .navigationBarTitleDisplayMode(.inline)

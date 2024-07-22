@@ -49,11 +49,6 @@ struct UserRole: Codable, Equatable {
     var updatedAt: String
 }
 
-struct PatchUserResponse: Codable {
-    var status: String
-    var message: String
-}
-
 struct ErrorResponse: Codable {
     var status: String
     var message: String
@@ -62,11 +57,6 @@ struct ErrorResponse: Codable {
 struct GetSocialmediaResponse: Codable {
     var status: String
     var message: Socialmedia
-}
-
-struct PatchSocialmediaResponse: Codable {
-    var status: String
-    var message: String
 }
 
 struct Socialmedia: Codable, Equatable {

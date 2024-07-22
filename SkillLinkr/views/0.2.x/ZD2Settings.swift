@@ -17,7 +17,7 @@ struct ZD2SettingsView: View {
                     ZD2EditProfileView(zd2Data: $zd2Data)
                 }
                 Button("Log Out", role: .destructive) {
-                    
+                    ZD2Management(zd2Data: $zd2Data).logOut()
                 }
             }
             Section("How you use SkillLinkr") {

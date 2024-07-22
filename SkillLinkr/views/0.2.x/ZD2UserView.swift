@@ -74,7 +74,7 @@ struct ZD2AppUserView: View {
                         Image(systemName: "pencil")
                     }
                     Button(role: .destructive) {
-                        
+                        ZD2Management(zd2Data: $zd2Data).logOut()
                     } label: {
                         Text("Log Out")
                         Image(systemName: "rectangle.portrait.and.arrow.right")
@@ -88,11 +88,34 @@ struct ZD2AppUserView: View {
 
 struct ZD2EditProfileView: View {
     @Binding var zd2Data: ZD2Data
+    @State var localUser: ZD2User = ZD2User(user: User(id: "1", firstname: "Test1", lastname: "Testmann1", mail: "test@testmann.com", released: true, role: UserRole(id: 0, name: "User", description: "User", createdAt: "", updatedAt: ""), updatedAt: "", createdAt: ""), socialmedia: Socialmedia(id: 0, userId: "1", updatedAt: "", createdAt: ""), teachingInformation: Teachinginformation(id: 0, userId: "1", teachesInPerson: true, teachesOnline: true, updatedAt: "", createdAt: ""))
     var body: some View {
         List {
-            Button("Save") {
+            Section("General information") {
+                TextField("Firstname", text: $localUser.user.firstname)
+                TextField("Lastname", text: $localUser.user.lastname)
+            }
+            Section("Socialmedia Links") {
+                OptionalTextField("X (Name)", text: $localUser.socialmedia.xName)
+                OptionalTextField("Discord (Name)", text: $localUser.socialmedia.discordName)
+                OptionalTextField("Instagram (Name)", text: $localUser.socialmedia.instagramName)
+                OptionalTextField("FaceBook (Name)", text: $localUser.socialmedia.facebookName)
+            }
+            Section("Teaching info") {
+                Toggle("I teach in person", isOn: $localUser.teachingInformation.teachesInPerson)
+                Toggle("I teach online", isOn: $localUser.teachingInformation.teachesOnline)
+                VStack(alignment: .leading) {
+                    Text("Country: \(Locale.current.localizedString(forRegionCode: localUser.teachingInformation.teachingCountry ?? "") ?? "")")
+                    OptionalCountryPicker(selectedCountry: $localUser.teachingInformation.teachingCountry)
+                }
+            }
+            Button("Save changes") {
                 save()
             }
+        }
+        .onAppear {
+            ZD2Management(zd2Data: $zd2Data).getUserData()
+            localUser = zd2Data.appUser.user
         }
         .navigationTitle("Edit My Profile")
         .toolbar {
@@ -103,16 +126,20 @@ struct ZD2EditProfileView: View {
     }
     
     func save() {
-        
+        ZD2Management(zd2Data: $zd2Data).patchUser($localUser)
     }
 }
 
 #Preview {
     if false {
-        ZD2UserView(user: ZD2User(user: User(id: "1", firstname: "Test1", lastname: "Testmann1", mail: "test@testmann.com", released: true, role: UserRole(id: 0, name: "User", description: "User", createdAt: "", updatedAt: ""), updatedAt: "", createdAt: ""), socialmedia: Socialmedia(id: 0, userId: "1", updatedAt: "", createdAt: ""), teachingInformation: Teachinginformation(id: 0, userId: "1", teachesInPerson: true, teachesOnline: true, updatedAt: "", createdAt: "")))
-    } else {
-        NavigationStack {
-            ZD2AppUserView(zd2Data: .constant(dummyZD2Data))
+        if false {
+            ZD2UserView(user: ZD2User(user: User(id: "1", firstname: "Test1", lastname: "Testmann1", mail: "test@testmann.com", released: true, role: UserRole(id: 0, name: "User", description: "User", createdAt: "", updatedAt: ""), updatedAt: "", createdAt: ""), socialmedia: Socialmedia(id: 0, userId: "1", updatedAt: "", createdAt: ""), teachingInformation: Teachinginformation(id: 0, userId: "1", teachesInPerson: true, teachesOnline: true, updatedAt: "", createdAt: "")))
+        } else {
+            NavigationStack {
+                ZD2AppUserView(zd2Data: .constant(dummyZD2Data))
+            }
         }
+    } else {
+        ZD2EditProfileView(zd2Data: .constant(dummyZD2Data))
     }
 }

@@ -194,7 +194,7 @@ class HTTPModule: ObservableObject {
         task.resume()
     }
     
-    func patchUser(token: String, patchUserId: String, firstname: String? = nil, lastname: String? = nil, password: String? = nil, completion: @escaping (Result<PatchUserResponse, Error>) -> Void) {
+    func patchUser(token: String, patchUserId: String, firstname: String? = nil, lastname: String? = nil, password: String? = nil, completion: @escaping (Result<PatchResponse, Error>) -> Void) {
         let url = URL(string: "\(settings.apiURL)/user")!
         var request = URLRequest(url: url)
         request.httpMethod = "PATCH"
@@ -238,7 +238,7 @@ class HTTPModule: ObservableObject {
             
             if httpResponse.statusCode == 200 {
                 do {
-                    let patchUserResponse = try JSONDecoder().decode(PatchUserResponse.self, from: data)
+                    let patchUserResponse = try JSONDecoder().decode(PatchResponse.self, from: data)
                     completion(.success(patchUserResponse))
                 } catch let decodeError {
                     let responseString = String(data: data, encoding: .utf8) ?? "Unable to parse response"
@@ -319,7 +319,7 @@ class HTTPModule: ObservableObject {
         task.resume()
     }
     
-    func patchSocialmedia(patchUserId: String, xName: String?, instagramName: String?, discordName: String?, facebookName: String?, completion: @escaping (Result<PatchSocialmediaResponse, Error>) -> Void) {
+    func patchSocialmedia(patchUserId: String, xName: String?, instagramName: String?, discordName: String?, facebookName: String?, completion: @escaping (Result<PatchResponse, Error>) -> Void) {
         let url = URL(string: "\(settings.apiURL)/user/socialmedia")!
         var request = URLRequest(url: url)
         request.httpMethod = "PATCH"
@@ -367,7 +367,7 @@ class HTTPModule: ObservableObject {
             
             if httpResponse.statusCode == 200 {
                 do {
-                    let patchSocialmediaResponse = try JSONDecoder().decode(PatchSocialmediaResponse.self, from: data)
+                    let patchSocialmediaResponse = try JSONDecoder().decode(PatchResponse.self, from: data)
                     completion(.success(patchSocialmediaResponse))
                 } catch let decodeError {
                     let responseString = String(data: data, encoding: .utf8) ?? "Unable to parse response"
@@ -1044,7 +1044,7 @@ class HTTPSModule: ObservableObject {
         task.resume()
     }
     
-    func patchUser(zd2Data: ZD2Data, patchUserId: String, firstname: String? = nil, lastname: String? = nil, password: String? = nil, completion: @escaping (Result<PatchUserResponse, Error>) -> Void) {
+    func patchUser(zd2Data: ZD2Data, patchUserId: String, firstname: String? = nil, lastname: String? = nil, password: String? = nil, completion: @escaping (Result<PatchResponse, Error>) -> Void) {
         let url = URL(string: "\(zd2Data.settings.apiURL)/user")!
         var request = URLRequest(url: url)
         request.httpMethod = "PATCH"
@@ -1088,8 +1088,8 @@ class HTTPSModule: ObservableObject {
             
             if httpResponse.statusCode == 200 {
                 do {
-                    let patchUserResponse = try JSONDecoder().decode(PatchUserResponse.self, from: data)
-                    completion(.success(patchUserResponse))
+                    let response = try JSONDecoder().decode(PatchResponse.self, from: data)
+                    completion(.success(response))
                 } catch let decodeError {
                     let responseString = String(data: data, encoding: .utf8) ?? "Unable to parse response"
                     let error = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Failed to decode response: \(decodeError). Response: \(responseString)"])
@@ -1164,7 +1164,7 @@ class HTTPSModule: ObservableObject {
         task.resume()
     }
     
-    func patchSocialmedia(zd2Data: ZD2Data, patchUserId: String, xName: String?, instagramName: String?, discordName: String?, facebookName: String?, completion: @escaping (Result<PatchSocialmediaResponse, Error>) -> Void) {
+    func patchSocialmedia(zd2Data: ZD2Data, patchUserId: String, xName: String?, instagramName: String?, discordName: String?, facebookName: String?, completion: @escaping (Result<PatchResponse, Error>) -> Void) {
         let url = URL(string: "\(zd2Data.settings.apiURL)/user/socialmedia")!
         var request = URLRequest(url: url)
         request.httpMethod = "PATCH"
@@ -1212,8 +1212,8 @@ class HTTPSModule: ObservableObject {
             
             if httpResponse.statusCode == 200 {
                 do {
-                    let patchSocialmediaResponse = try JSONDecoder().decode(PatchSocialmediaResponse.self, from: data)
-                    completion(.success(patchSocialmediaResponse))
+                    let response = try JSONDecoder().decode(PatchResponse.self, from: data)
+                    completion(.success(response))
                 } catch let decodeError {
                     let responseString = String(data: data, encoding: .utf8) ?? "Unable to parse response"
                     let error = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Failed to decode response: \(decodeError). Response: \(responseString)"])
