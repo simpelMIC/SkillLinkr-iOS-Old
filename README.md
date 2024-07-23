@@ -41,4 +41,4 @@ To run Skilllinkr-iOS locally, follow these steps:
 
 ## Contact
 
-For questions or support, please contact simpelMIC at [your email address] or visit the [GitHub repository](https://github.com/simpelMIC/Skilllinkr-iOS) to submit issues or feature requests.
+For questions or support, please contact simpelMIC at apps@micstudios.de or visit the [GitHub repository](https://github.com/simpelMIC/Skilllinkr-iOS) to submit issues or feature requests.
