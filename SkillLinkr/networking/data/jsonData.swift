@@ -146,5 +146,10 @@ struct GetSkillTeachersResponse: Codable, Equatable {
 
 struct GetUserSkillsResponse: Codable, Equatable {
     var status: String
-    var message: [Skill]
+    var message: GetUserResponseThing
+}
+
+struct GetUserResponseThing: Codable, Equatable {
+    var id: String
+    var skillsToTeach: [Skill]
 }

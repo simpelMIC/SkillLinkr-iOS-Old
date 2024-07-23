@@ -86,6 +86,7 @@ struct ZD2Management: View {
             case .failure(let error):
                 print("FAILED TO GET APP USER: \(error.localizedDescription)")
                 self.error = error.localizedDescription
+                dataLoaded = false
                 isAlertPresented = true
             }
         }
@@ -99,10 +100,13 @@ struct ZD2Management: View {
         var userDataError: Error?
         
         var socialMedia: Socialmedia?
+        var socialmediaError: Error?
         
         var teachingInformation: Teachinginformation?
+        var teachingInformationError: Error?
         
         var userSkills: [Skill]?
+        var userSkillsError: Error?
         
         // Get user data
         dispatchGroup.enter()
@@ -125,7 +129,7 @@ struct ZD2Management: View {
             case .success(let response):
                 socialMedia = response
             case .failure(let error):
-                print("getUserSocialmediaError: \(error)")
+                socialmediaError = error
                 break
             }
             dispatchGroup.leave()
@@ -138,7 +142,7 @@ struct ZD2Management: View {
             case .success(let response):
                 teachingInformation = response
             case .failure(let error):
-                print("getUserTeachingInformationError: \(error)")
+                teachingInformationError = error
                 break
             }
             dispatchGroup.leave()
@@ -150,16 +154,18 @@ struct ZD2Management: View {
             case .success(let response):
                 userSkills = response
             case .failure(let error):
-                print("getUserSkillsError: \(error)")
+                userSkillsError = error
+                break
             }
+            dispatchGroup.leave()
         }
         
         // Notify when all tasks are complete
         dispatchGroup.notify(queue: .main) {
             // Check if all necessary data is available
-            if userData == nil, socialMedia == nil, teachingInformation == nil {
+            if userData == nil || socialMedia == nil || teachingInformation == nil || userSkills == nil {
                 // Handle the case where some of the data might be missing
-                let missingDataError = NSError(domain: "de.micstudios", code: 0, userInfo: [NSLocalizedDescriptionKey: "\(userDataError?.localizedDescription ?? "")"])
+                let missingDataError = NSError(domain: "de.micstudios", code: 0, userInfo: [NSLocalizedDescriptionKey: "userData: \(userDataError?.localizedDescription ?? ""), userSocialmedia: \(socialmediaError?.localizedDescription ?? ""), teachingInformation: \(teachingInformationError?.localizedDescription ?? ""), userSkills: \(userSkillsError?.localizedDescription ?? "")"])
                 completion(.failure(missingDataError))
             } else {
                 completion(.success((userData, socialMedia, teachingInformation, userSkills)))
@@ -221,7 +227,7 @@ struct ZD2Management: View {
             switch result {
             case .success(let response):
                 print("UserSkills fetched successfully: \(response.status)")
-                completion(.success(response.message))
+                completion(.success(response.message.skillsToTeach))
             case .failure(let error):
                 print("Failed to fetch userSkills: \(error.localizedDescription)")
                 completion(.failure(error))

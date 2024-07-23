@@ -29,7 +29,7 @@ struct ZD2UserView: View {
                                 Circle()
                                     .stroke(.primary, lineWidth: 1)
                             }
-                            .shadow(color: .black.opacity(0.5), radius: 8, x: 0, y: 4)
+                            .shadow(radius: 10)
                             .padding()
                             .padding(.trailing)
                         VStack(alignment: .leading) {
@@ -76,7 +76,7 @@ struct ZD2AppUserView: View {
     @Binding var zd2Data: ZD2Data
     var body: some View {
         ZD2UserView(zd2Data: $zd2Data, user: $zd2Data.appUser.user.wrappedValue)
-            .navigationTitle("My Profile")
+            .navigationTitle("My Account")
             .toolbar {
                 Menu {
                     NavigationLink {
@@ -84,6 +84,12 @@ struct ZD2AppUserView: View {
                     } label: {
                         Text("Settings")
                         Image(systemName: "gear")
+                    }
+                    NavigationLink {
+                        
+                    } label: {
+                        Text("Favorites")
+                        Image(systemName: "star")
                     }
                     NavigationLink {
                         ZD2EditProfileView(zd2Data: $zd2Data)

@@ -17,6 +17,7 @@ struct ZD2TabView: View {
             }
             .tabItem {
                 Image(systemName: "square.stack.fill")
+                Text("Feed")
             }
             
             NavigationStack {
@@ -24,6 +25,7 @@ struct ZD2TabView: View {
             }
             .tabItem {
                 Image(systemName: "bubble.left.and.bubble.right.fill")
+                Text("Messages")
             }
             
             NavigationStack {
@@ -31,6 +33,7 @@ struct ZD2TabView: View {
             }
             .tabItem {
                 Image(systemName: "person.fill")
+                Text("My Account")
             }
         }
     }
